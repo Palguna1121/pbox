@@ -1,9 +1,9 @@
-// src/components/login-form.tsx
+// Perbarui src/components/login-form.tsx
 "use client";
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,10 +11,24 @@ import Link from "next/link";
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Cek apakah ada error dari NextAuth
+  const authError = searchParams.get("error");
+
+  // Set error message berdasarkan error dari NextAuth
+  useState(() => {
+    if (authError === "CredentialsSignin") {
+      setError("Email atau password tidak valid");
+    } else if (authError) {
+      setError(`Error: ${authError}`);
+    }
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,15 +43,13 @@ export function LoginForm() {
       });
 
       if (result?.error) {
-        setError("Email atau password tidak valid");
-        setIsLoading(false);
-        return;
+        setError("Email atau password salah!");
+      } else {
+        router.push("/dashboard");
       }
-
-      router.push("/dashboard");
-      router.refresh();
     } catch (error) {
-      setError("Terjadi kesalahan saat login");
+      setError("Terjadi kesalahan sistem");
+    } finally {
       setIsLoading(false);
     }
   };

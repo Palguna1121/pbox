@@ -5,8 +5,7 @@ import { getServerSession } from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import { compare } from "@/lib/bcrypt";
-import { JWT } from "next-auth/jwt";
-
+import NextAuth from "next-auth";
 // Perluas tipe Session dan JWT untuk user
 declare module "next-auth" {
   interface Session {
@@ -42,6 +41,8 @@ export const authOptions: NextAuthOptions = {
     signOut: "/login",
     error: "/login",
   },
+  secret: process.env.NEXTAUTH_SECRET, // Pastikan ini ada
+  debug: process.env.NODE_ENV === "development", // Aktifkan debug mode di development
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -51,30 +52,39 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          console.log("Credentials missing");
           return null;
         }
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
-        });
+        try {
+          const user = await prisma.user.findUnique({
+            where: {
+              email: credentials.email,
+            },
+          });
 
-        if (!user) {
+          if (!user) {
+            console.log("User not found");
+            return null;
+          }
+
+          const passwordMatch = await compare(credentials.password, user.password);
+
+          if (!passwordMatch) {
+            console.log("Password doesn't match");
+            return null;
+          }
+
+          console.log("Authentication successful");
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+          };
+        } catch (error) {
+          console.error("Auth error:", error);
           return null;
         }
-
-        const passwordMatch = await compare(credentials.password, user.password);
-
-        if (!passwordMatch) {
-          return null;
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-        };
       },
     }),
   ],
@@ -95,5 +105,8 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
-
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
 export const getAuthSession = () => getServerSession(authOptions);
+
+export const { handlers, auth, signIn, signOut } = NextAuth(authOptions);

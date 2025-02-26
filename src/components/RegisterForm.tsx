@@ -1,4 +1,4 @@
-// src/components/register-form.tsx
+// Perbarui src/components/register-form.tsx
 "use client";
 
 import { useState } from "react";
@@ -27,23 +27,34 @@ export function RegisterForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
       });
+
+      // Handle non-JSON response
+      const contentType = response.headers.get("content-type");
+      if (!contentType?.includes("application/json")) {
+        const text = await response.text();
+        throw new Error(`Unexpected response: ${text.slice(0, 100)}...`);
+      }
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Terjadi kesalahan");
+        throw new Error(data.error || "Registration failed");
       }
 
-      // Redirect ke login setelah berhasil mendaftar
-      router.push("/login?registered=true");
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
+      router.push("/login");
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
       } else {
-        setError("Terjadi kesalahan saat mendaftar");
+        setError("An unknown error occurred");
       }
+    } finally {
       setIsLoading(false);
     }
   };
