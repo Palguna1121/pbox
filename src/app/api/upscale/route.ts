@@ -1,24 +1,11 @@
 // src/app/api/upscale/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { exec } from "child_process";
-import { promisify } from "util";
+import { spawn } from "child_process";
 import path from "path";
-
-// Promisify exec untuk async/await
-const execPromise = promisify(exec);
-
-// Ukuran maksimal body request
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "10mb",
-    },
-  },
-};
+import { Readable } from "stream";
 
 export async function POST(request: NextRequest) {
   try {
-    // Parse request body
     const body = await request.json();
     const { imageData } = body;
 
@@ -26,26 +13,44 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: "No image data provided" }, { status: 400 });
     }
 
-    // Path ke Python script
     const pythonScriptPath = path.join(process.cwd(), "python", "upscaler.py");
 
-    // Command untuk menjalankan Python script
-    // Pastikan python/pip sudah terinstall dependencies yang diperlukan:
-    // pip install torch numpy pillow basicsr realesrgan
-    const command = `python ${pythonScriptPath}`;
+    // Membuat stream dari base64 data
+    const inputStream = new Readable();
+    inputStream.push(imageData);
+    inputStream.push(null); // Tanda akhir stream
 
-    // Jalankan Python script dengan input base64 dari stdin
-    const { stdout, stderr } = await execPromise(command, {
-      input: imageData,
-      maxBuffer: 1024 * 1024 * 50, // Perbesar buffer untuk gambar besar
+    // Menggunakan spawn untuk proses I/O yang lebih baik
+    const pythonProcess = spawn("python", [pythonScriptPath], {
+      stdio: ["pipe", "pipe", "pipe"],
     });
 
-    if (stderr) {
+    let stdout = "";
+    let stderr = "";
+
+    // Pipe input ke stdin proses Python
+    inputStream.pipe(pythonProcess.stdin);
+
+    // Tangkap output stdout
+    pythonProcess.stdout.on("data", (data) => {
+      stdout += data.toString();
+    });
+
+    // Tangkap error stderr
+    pythonProcess.stderr.on("data", (data) => {
+      stderr += data.toString();
+    });
+
+    // Tunggu proses selesai
+    const exitCode = await new Promise<number>((resolve) => {
+      pythonProcess.on("close", resolve);
+    });
+
+    if (exitCode !== 0 || stderr) {
       console.error("Python script error:", stderr);
       return NextResponse.json({ success: false, message: `Error in Python script: ${stderr}` }, { status: 500 });
     }
 
-    // Output dari Python script adalah base64 dari gambar yang sudah di-upscale
     const upscaledBase64 = stdout.trim();
 
     return NextResponse.json({
