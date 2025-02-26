@@ -11,48 +11,36 @@ export const Header = () => {
     {
       title: "Home",
       href: "/",
-      description: "",
+      description: "Go to Home",
     },
     {
-      title: "Product",
+      title: "Services",
       description: "Managing a small business today is already tough.",
       items: [
         {
-          title: "Reports",
-          href: "/reports",
+          title: "Photobox",
+          href: "/photobox",
         },
         {
-          title: "Statistics",
-          href: "/statistics",
+          title: "Sticker Pic",
+          href: "/sticker-pic",
         },
         {
-          title: "Dashboards",
-          href: "/dashboards",
-        },
-        {
-          title: "Recordings",
-          href: "/recordings",
+          title: "Formal Pic",
+          href: "/formal-pic",
         },
       ],
     },
     {
-      title: "Company",
+      title: "More",
       description: "Managing a small business today is already tough.",
       items: [
         {
-          title: "About us",
+          title: "About",
           href: "/about",
         },
         {
-          title: "Fundraising",
-          href: "/fundraising",
-        },
-        {
-          title: "Investors",
-          href: "/investors",
-        },
-        {
-          title: "Contact us",
+          title: "Contact",
           href: "/contact",
         },
       ],
@@ -84,9 +72,6 @@ export const Header = () => {
                               <p className="text-base">{item.title}</p>
                               <p className="text-muted-foreground text-sm">{item.description}</p>
                             </div>
-                            <Button size="sm" className="mt-10">
-                              Book a call today
-                            </Button>
                           </div>
                           <div className="flex flex-col text-sm h-full justify-end">
                             {item.items?.map((subItem) => (
@@ -106,7 +91,7 @@ export const Header = () => {
           </NavigationMenu>
         </div>
         <div className="flex lg:justify-center">
-          <p className="font-semibold">TWBlocks</p>
+          <p className="font-semibold">Photobox</p>
         </div>
         <div className="flex justify-end w-full gap-4">
           <Button variant="ghost" className="hidden md:inline">
