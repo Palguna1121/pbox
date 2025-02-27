@@ -3,6 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { NextAuthOptions } from "next-auth";
 import { getServerSession } from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
 import { compare } from "@/lib/bcrypt";
 import NextAuth from "next-auth";
@@ -32,7 +33,19 @@ declare module "next-auth/jwt" {
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: {
+    ...PrismaAdapter(prisma),
+    createUser: async (data: any) => {
+      // Handle OAuth user creation without password
+      return prisma.user.create({
+        data: {
+          ...data,
+          emailVerified: new Date(), // Auto-verify OAuth users
+          password: data.password || null, // Allow null for OAuth users
+        },
+      });
+    },
+  },
   session: {
     strategy: "jwt",
   },
@@ -44,6 +57,10 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET, // Pastikan ini ada
   debug: process.env.NODE_ENV === "development", // Aktifkan debug mode di development
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -68,11 +85,12 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          const passwordMatch = await compare(credentials.password, user.password);
-
-          if (!passwordMatch) {
-            console.log("Password doesn't match");
-            return null;
+          if (user.password) {
+            const passwordMatch = await compare(credentials.password, user.password);
+            if (!passwordMatch) {
+              console.log("Password doesn't match");
+              return null;
+            }
           }
 
           console.log("Authentication successful");

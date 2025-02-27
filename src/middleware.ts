@@ -69,7 +69,7 @@
 //   matcher: ["/dashboard/:path*"],
 // };
 
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 export async function middleware(request: NextRequest) {
