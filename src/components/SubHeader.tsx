@@ -22,6 +22,10 @@ const SubHeader = () => {
       title: "Sticker Pic",
       href: "/admin/sticker-catalog",
     },
+    {
+      title: "Categories",
+      href: "/admin/categories",
+    },
   ];
 
   // Modified function to check if current path starts with any of the base paths
