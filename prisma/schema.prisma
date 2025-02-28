@@ -63,3 +63,22 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+model Category {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  description   String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  frameCatalogs FrameCatalog[]
+}
+
+model FrameCatalog {
+  id           String    @id @default(cuid())
+  frameName    String
+  imageUrl     String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  categoryId   String
+  category     Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
