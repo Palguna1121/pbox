@@ -6,9 +6,10 @@ const prisma = new PrismaClient();
 // GET: Mendapatkan detail kategori
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const param = await params;
     const category = await prisma.category.findUnique({
       where: {
-        id: params.id,
+        id: param.id,
       },
       include: {
         frameCatalogs: true,
@@ -29,6 +30,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 // PATCH: Memperbarui kategori
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const param = await params;
     const body = await req.json();
     const { name, description } = body;
 
@@ -41,7 +43,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       where: {
         name,
         id: {
-          not: params.id,
+          not: param.id,
         },
       },
     });
@@ -52,7 +54,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     const category = await prisma.category.update({
       where: {
-        id: params.id,
+        id: param.id,
       },
       data: {
         name,
@@ -70,10 +72,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 // DELETE: Menghapus kategori
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const param = await params;
     // Periksa apakah kategori tersebut digunakan oleh frame catalog
     const frameCatalogs = await prisma.frameCatalog.findMany({
       where: {
-        categoryId: params.id,
+        categoryId: param.id,
       },
     });
 
@@ -89,7 +92,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
     await prisma.category.delete({
       where: {
-        id: params.id,
+        id: param.id,
       },
     });
 

@@ -17,9 +17,10 @@ interface CategoryDetailPageProps {
 }
 
 export default async function CategoryDetailPage({ params }: CategoryDetailPageProps) {
+  const param = await params;
   const category = await prisma.category.findUnique({
     where: {
-      id: params.id,
+      id: param.id,
     },
     include: {
       frameCatalogs: {
@@ -42,7 +43,7 @@ export default async function CategoryDetailPage({ params }: CategoryDetailPageP
           <Link href="/admin/categories">
             <Button variant="outline">Back to List</Button>
           </Link>
-          <Link href={`/admin/categories/${params.id}/edit`}>
+          <Link href={`/admin/categories/${param.id}/edit`}>
             <Button>Edit Category</Button>
           </Link>
         </div>
@@ -82,7 +83,7 @@ export default async function CategoryDetailPage({ params }: CategoryDetailPageP
             </div>
 
             <div className="mt-6">
-              <DeleteCategoryButton id={params.id} />
+              <DeleteCategoryButton id={param.id} />
             </div>
           </CardContent>
         </Card>

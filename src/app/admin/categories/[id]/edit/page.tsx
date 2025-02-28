@@ -11,9 +11,10 @@ interface EditCategoryPageProps {
 }
 
 export default async function EditCategoryPage({ params }: EditCategoryPageProps) {
+  const param = await params;
   const category = await prisma.category.findUnique({
     where: {
-      id: params.id,
+      id: param.id,
     },
   });
 
