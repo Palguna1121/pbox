@@ -31,6 +31,7 @@ export function RegisterForm() {
           name,
           email,
           password,
+          role: "user",
         }),
       });
 

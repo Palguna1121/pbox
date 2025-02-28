@@ -76,6 +76,10 @@ export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request });
   const path = request.nextUrl.pathname;
 
+  if (path.startsWith("/admin") && token?.role !== "admin") {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
   // Route yang diproteksi
   const protectedRoutes = ["/dashboard", "/profile", "/settings"];
 

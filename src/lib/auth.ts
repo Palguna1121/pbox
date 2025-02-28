@@ -14,6 +14,8 @@ declare module "next-auth" {
       id: string;
       name?: string | null;
       email?: string | null;
+      image?: string | null;
+      role?: string | null;
     };
   }
 
@@ -21,6 +23,7 @@ declare module "next-auth" {
     id: string;
     name?: string | null;
     email?: string | null;
+    role?: string | null;
   }
 }
 
@@ -29,6 +32,7 @@ declare module "next-auth/jwt" {
     id: string;
     name?: string | null;
     email?: string | null;
+    role?: string | null;
   }
 }
 
@@ -40,6 +44,7 @@ export const authOptions: NextAuthOptions = {
       return prisma.user.create({
         data: {
           ...data,
+          role: "user",
           emailVerified: new Date(), // Auto-verify OAuth users
           password: data.password || null, // Allow null for OAuth users
         },
@@ -78,6 +83,13 @@ export const authOptions: NextAuthOptions = {
             where: {
               email: credentials.email,
             },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              password: true,
+              role: true, // Tambahkan ini
+            },
           });
 
           if (!user) {
@@ -107,17 +119,41 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ token, session }) {
+    async session({ token, session, user }) {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: token.sub || user?.id },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          image: true,
+        },
+      });
       if (token) {
         session.user.id = token.id;
         session.user.name = token.name;
         session.user.email = token.email;
+        session.user.role = token.role;
       }
-      return session;
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          ...dbUser,
+          role: dbUser?.role || token.role,
+        },
+      };
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
+      // Handle update session jika diperlukan
+      if (trigger === "update" && session?.role) {
+        token.role = session.role;
+      }
+
       if (user) {
-        token.id = user.id;
+        token.sub = user.id;
+        token.role = user.role;
       }
       return token;
     },
