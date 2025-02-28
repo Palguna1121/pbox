@@ -5,12 +5,13 @@ import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMe
 import { Menu, MoveRight, X } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import SignInNavButton from "./SignInNavButton";
 
 export const Header = () => {
   const navigationItems = [
     {
       title: "Home",
-      href: "/",
+      href: "/dashboard",
       description: "Go to Home",
     },
     {
@@ -91,15 +92,18 @@ export const Header = () => {
           </NavigationMenu>
         </div>
         <div className="flex lg:justify-center">
-          <p className="font-semibold">Photobox</p>
+          <Link href="/" className="font-semibold">
+            Photobox
+          </Link>
         </div>
         <div className="flex justify-end w-full gap-4">
-          <Button variant="ghost" className="hidden md:inline">
+          {/* <Button variant="ghost" className="hidden md:inline">
             Book a demo
-          </Button>
+          </Button> */}
           <div className="border-r hidden md:inline"></div>
-          <Button variant="outline">Sign in</Button>
-          <Button>Get started</Button>
+          {/* <Button variant="outline">Sign in</Button> */}
+          <SignInNavButton />
+          {/* <Button>Get started</Button> */}
         </div>
         <div className="flex w-12 shrink lg:hidden items-end justify-end">
           <Button variant="ghost" onClick={() => setOpen(!isOpen)}>
@@ -109,7 +113,7 @@ export const Header = () => {
             <div className="absolute top-20 border-t flex flex-col w-full right-0 bg-background shadow-lg py-4 container gap-8">
               {navigationItems.map((item) => (
                 <div key={item.title}>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 px-6">
                     {item.href ? (
                       <Link href={item.href} className="flex justify-between items-center">
                         <span className="text-lg">{item.title}</span>
