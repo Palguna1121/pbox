@@ -63,7 +63,7 @@ export default async function CategoriesPage() {
                         </Button>
                       </Link>
                       <Link href={`/admin/categories/${category.id}/edit`}>
-                        <Button variant="outline" size="sm">
+                        <Button variant="default" size="sm">
                           Edit
                         </Button>
                       </Link>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { uploadFileToPinata } from "@/app/utils/pinata";
+import { uploadFile } from "@/app/utils/imagekit";
 
 const prisma = new PrismaClient();
 

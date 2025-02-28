@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { uploadFileToPinata } from "@/app/utils/pinata";
+import { uploadFile } from "@/app/utils/imagekit";
 
 const prisma = new PrismaClient();
 
 // GET: Mendapatkan detail frame catalog
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const param = await params;
     const frameCatalog = await prisma.frameCatalog.findUnique({
       where: {
-        id: params.id,
+        id: param.id,
       },
     });
 
@@ -27,6 +28,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 // PATCH: Memperbarui frame catalog
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const param = await params;
     const body = await req.json();
     const { frameName, categoryId, imageUrl } = body;
 
@@ -36,7 +38,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
 
     const frameCatalog = await prisma.frameCatalog.update({
-      where: { id: params.id },
+      where: { id: param.id },
       data: {
         frameName,
         categoryId,
@@ -57,9 +59,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 // DELETE: Menghapus frame catalog
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const param = await params;
     await prisma.frameCatalog.delete({
       where: {
-        id: params.id,
+        id: param.id,
       },
     });
 

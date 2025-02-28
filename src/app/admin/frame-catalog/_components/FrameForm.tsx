@@ -88,29 +88,6 @@ export default function FrameForm({ initialData, isEditing = false }: FrameFormP
     }
   };
 
-  // Tambahkan fungsi uploadFile yang terpisah
-  const uploadFile = async (file: File) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/files", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
-
-      const result = await response.json();
-      return result.url;
-    } catch (error) {
-      console.error("Upload error:", error);
-      throw error;
-    }
-  };
-
   // Update onSubmit function
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -118,41 +95,40 @@ export default function FrameForm({ initialData, isEditing = false }: FrameFormP
 
       let imageUrl = initialData?.imageUrl;
 
-      // Upload file baru jika ada
+      // Upload file baru
       if (file) {
-        imageUrl = await uploadFile(file);
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("folder", "/nanabox-images/frames");
+
+        const response = await fetch("/api/files", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error("Upload failed");
+        const { url } = await response.json();
+        imageUrl = url;
       }
 
-      // Data untuk API
-      const body = {
-        frameName: values.frameName,
-        categoryId: values.categoryId,
-        imageUrl,
-      };
-
-      const url = isEditing ? `/api/frame-catalog/${initialData?.id}` : "/api/frame-catalog";
-
-      const method = isEditing ? "PATCH" : "POST";
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+      // POST/PATCH data ke API frame catalog
+      const response = await fetch(isEditing ? `/api/frame-catalog/${initialData?.id}` : "/api/frame-catalog", {
+        method: isEditing ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          frameName: values.frameName,
+          categoryId: values.categoryId,
+          imageUrl,
+        }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to save frame");
-      }
+      if (!response.ok) throw new Error("Save failed");
 
       router.push("/admin/frame-catalog");
       router.refresh();
     } catch (error) {
-      console.error("Error saving frame:", error);
-      if (error instanceof Error) {
-        form.setError("root", { message: error.message });
-      }
+      console.error("Error:", error);
+      // Handle error
     } finally {
       setIsLoading(false);
     }
@@ -218,7 +194,14 @@ export default function FrameForm({ initialData, isEditing = false }: FrameFormP
           <div className="mt-2">
             <p className="text-sm text-gray-500 mb-2">Image Preview</p>
             <div className="relative h-40 w-40 rounded-md overflow-hidden">
-              <Image src={previewUrl} alt="Frame preview" fill className="object-cover" />
+              <Image
+                src={previewUrl}
+                alt="Frame preview"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover"
+                priority={true}
+              />
             </div>
           </div>
         )}
