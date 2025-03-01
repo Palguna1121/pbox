@@ -71,11 +71,22 @@ model Category {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   frameCatalogs FrameCatalog[]
+  stickerCatalogs StickerCatalog[]
 }
 
 model FrameCatalog {
   id           String    @id @default(cuid())
   frameName    String
+  imageUrl     String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  categoryId   String
+  category     Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
+
+model StickerCatalog {
+  id           String           @id @default(cuid())
+  stickerName  String
   imageUrl     String
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt

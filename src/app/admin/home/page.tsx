@@ -1,7 +1,12 @@
 import React from "react";
 
-const page = () => {
-  return <div>page</div>;
+const AdminHome = () => {
+  return (
+    <div>
+      <h1>Admin Home</h1>
+      <p>Admin Home</p>
+    </div>
+  );
 };
 
-export default page;
+export default AdminHome;
