@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Route yang diproteksi
-  const protectedRoutes = ["/dashboard", "/profile", "/settings"];
+  const protectedRoutes = ["/dashboard", "/profile", "/settings", "/admin"];
 
   // Redirect ke login jika belum login dan mengakses route proteksi
   if (!token && protectedRoutes.some((route) => path.startsWith(route))) {
@@ -28,5 +28,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/profile/:path*", "/settings/:path*", "/login", "/register"],
+  matcher: ["/dashboard/:path*", "/profile/:path*", "/settings/:path*", "/login", "/register", "/admin/:path*"],
 };
