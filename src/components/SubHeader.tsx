@@ -11,7 +11,7 @@ const SubHeader = () => {
 
   const submenuItems = [
     {
-      title: "Home",
+      title: "Dashboard",
       href: "/admin/home",
     },
     {

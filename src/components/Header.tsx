@@ -64,7 +64,9 @@ export const Header = () => {
                     {item.href ? (
                       <>
                         <NavigationMenuLink>
-                          <Button variant="ghost">{item.title}</Button>
+                          <Button onClick={() => (window.location.href = item.href)} variant="ghost">
+                            {item.title}
+                          </Button>
                         </NavigationMenuLink>
                       </>
                     ) : (
