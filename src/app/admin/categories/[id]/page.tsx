@@ -28,6 +28,11 @@ export default async function CategoryDetailPage({ params }: CategoryDetailPageP
           createdAt: "desc",
         },
       },
+      stickerCatalogs: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
     },
   });
 
@@ -88,6 +93,7 @@ export default async function CategoryDetailPage({ params }: CategoryDetailPageP
           </CardContent>
         </Card>
 
+        {/* frames use this category */}
         <Card>
           <CardHeader>
             <CardTitle>Frames in this Category ({category.frameCatalogs.length})</CardTitle>
@@ -111,7 +117,7 @@ export default async function CategoryDetailPage({ params }: CategoryDetailPageP
                       <TableRow key={frame.id}>
                         <TableCell>
                           <div className="relative h-12 w-12 rounded-md overflow-hidden">
-                            <Image src={frame.imageUrl} alt={frame.frameName} fill className="object-cover" />
+                            <Image src={frame.imageUrl} alt={frame.frameName} priority={true} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px)" className="object-cover" />
                           </div>
                         </TableCell>
                         <TableCell>{frame.frameName}</TableCell>
@@ -120,6 +126,51 @@ export default async function CategoryDetailPage({ params }: CategoryDetailPageP
                           <Link href={`/admin/frame-catalog/${frame.id}`}>
                             <Button variant="outline" size="sm">
                               View Frame
+                            </Button>
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* stickers use this category */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Stickers in this Category ({category.stickerCatalogs.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {category.stickerCatalogs.length === 0 ? (
+              <p className="text-gray-500">No Stickers in this category yet.</p>
+            ) : (
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Image</TableHead>
+                      <TableHead>Sticker Name</TableHead>
+                      <TableHead>Created At</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {category.stickerCatalogs.map((sticker) => (
+                      <TableRow key={sticker.id}>
+                        <TableCell>
+                          <div className="relative h-12 w-12 rounded-md overflow-hidden">
+                            <Image src={sticker.imageUrl} alt={sticker.stickerName} priority={true} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px)" className="object-cover" />
+                          </div>
+                        </TableCell>
+                        <TableCell>{sticker.stickerName}</TableCell>
+                        <TableCell>{format(new Date(sticker.createdAt), "dd MMM yyyy")}</TableCell>
+                        <TableCell className="text-right">
+                          <Link href={`/admin/sticker-catalog/${sticker.id}`}>
+                            <Button variant="outline" size="sm">
+                              View Sticker
                             </Button>
                           </Link>
                         </TableCell>

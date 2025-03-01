@@ -16,6 +16,7 @@ export default async function CategoriesPage() {
       _count: {
         select: {
           frameCatalogs: true,
+          stickerCatalogs: true,
         },
       },
     },
@@ -36,7 +37,8 @@ export default async function CategoriesPage() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead>Frames</TableHead>
+              <TableHead>Frames Use</TableHead>
+              <TableHead>Sticker Use</TableHead>
               <TableHead>Created At</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -54,6 +56,7 @@ export default async function CategoriesPage() {
                   <TableCell className="font-medium">{category.name}</TableCell>
                   <TableCell>{category.description || "-"}</TableCell>
                   <TableCell>{category._count.frameCatalogs}</TableCell>
+                  <TableCell>{category._count.stickerCatalogs}</TableCell>
                   <TableCell>{format(new Date(category.createdAt), "dd MMM yyyy")}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
