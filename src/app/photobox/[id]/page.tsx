@@ -43,7 +43,7 @@ export default async function FrameDetail({ params }: { params: { id: string } }
             <p className="text-muted-foreground">Tanggal Upload: {new Date(frame.createdAt).toLocaleDateString("id-ID")}</p>
           </div>
 
-          <Link href={`/camera?frameId=${frame.id}`} className="inline-block">
+          <Link href={`/camera?type=frame&id=${frame.id}`} className="inline-block">
             <Button size="lg" className="w-full md:w-auto">
               Gunakan Frame Ini
             </Button>

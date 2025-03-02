@@ -40,6 +40,8 @@ export default function CameraPage() {
     fetchOverlay();
   }, [type, id, color]);
 
+  console.log({ type, id, color });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
