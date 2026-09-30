@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
+import { getAuthSession } from "@/lib/auth";
 
 // GET: Mendapatkan semua kategori
 export async function GET() {
@@ -21,6 +20,11 @@ export async function GET() {
 
 // POST: Membuat kategori baru
 export async function POST(req: NextRequest) {
+  const session = await getAuthSession();
+  if (!session || session.user.role !== "admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const { name, description } = body;

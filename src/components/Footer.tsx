@@ -1,90 +1,49 @@
 import Link from "next/link";
 
-export const Footer = () => {
-  const navigationItems = [
-    {
-      title: "Home",
-      href: "/",
-      description: "Go to Home",
-    },
-    {
-      title: "Services",
-      description: "Managing a small business today is already tough.",
-      items: [
-        {
-          title: "Photobox",
-          href: "/photobox",
-        },
-        {
-          title: "Sticker Pic",
-          href: "/sticker-pic",
-        },
-        {
-          title: "Formal Pic",
-          href: "/formal-pic",
-        },
-      ],
-    },
-    {
-      title: "More",
-      description: "Managing a small business today is already tough.",
-      items: [
-        {
-          title: "About",
-          href: "/about",
-        },
-        {
-          title: "Contact",
-          href: "/contact",
-        },
-      ],
-    },
-  ];
+const SERVICES = [
+  { label: "Photobox", href: "/photobox" },
+  { label: "Sticker Pic", href: "/sticker-pic" },
+  { label: "Foto Formal", href: "/formal-pic" },
+];
 
+export function Footer() {
   return (
-    <div className="w-full p-8 lg:py-40 bg-foreground text-background">
-      <div className="container mx-auto">
-        <div className="grid lg:grid-cols-2 gap-10 items-center">
-          <div className="flex gap-8 flex-col items-start">
-            <div className="flex gap-2 flex-col">
-              <h2 className="text-3xl md:text-5xl tracking-tighter max-w-xl font-regular text-left">Photobox</h2>
-              <p className="text-lg max-w-lg leading-relaxed tracking-tight text-background/75 text-left">Managing a small business today is already tough.</p>
-            </div>
-            <div className="flex gap-20 flex-row">
-              <div className="flex flex-col text-sm max-w-lg leading-relaxed tracking-tight text-background/75 text-left">
-                <p>1 Tailwind Way</p>
-                <p>Menlo Park</p>
-                <p>CA 94025</p>
-              </div>
-              <div className="flex flex-col text-sm max-w-lg leading-relaxed tracking-tight text-background/75 text-left">
-                <Link href="/">Terms of service</Link>
-                <Link href="/">Privacy Policy</Link>
-              </div>
-            </div>
-          </div>
-          <div className="grid lg:grid-cols-3 gap-10 items-start">
-            {navigationItems.map((item) => (
-              <div key={item.title} className="flex text-base gap-1 flex-col items-start">
-                <div className="flex flex-col gap-2">
-                  {item.href ? (
-                    <Link href={item.href} className="flex justify-between items-center">
-                      <span className="text-xl">{item.title}</span>
-                    </Link>
-                  ) : (
-                    <p className="text-xl">{item.title}</p>
-                  )}
-                  {item.items &&
-                    item.items.map((subItem) => (
-                      <Link key={subItem.title} href={subItem.href} className="flex justify-between items-center">
-                        <span className="text-background/75">{subItem.title}</span>
-                      </Link>
-                    ))}
-                </div>
-              </div>
-            ))}
-          </div>
+    <footer className="border-t border-border bg-muted/55 text-foreground">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]">
+        <div>
+          <Link href="/" className="inline-block text-2xl font-black tracking-tighter focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            P<span className="text-primary">BOX</span>
+          </Link>
+          <p className="mt-4 max-w-[38ch] text-sm leading-relaxed text-muted-foreground">
+            Studio foto di browser untuk frame, stiker, dan foto formal.
+          </p>
         </div>
+
+        <nav aria-label="Layanan di footer">
+          <h2 className="mb-4 text-sm font-bold">Layanan</h2>
+          <ul className="space-y-3">
+            {SERVICES.map((service) => (
+              <li key={service.href}>
+                <Link href={service.href} className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  {service.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <nav aria-label="Akun di footer">
+          <h2 className="mb-4 text-sm font-bold">Akun</h2>
+          <ul className="space-y-3">
+            <li><Link href="/dashboard" className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Dashboard</Link></li>
+            <li><Link href="/profile" className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Profil</Link></li>
+            <li><Link href="/settings" className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Pengaturan</Link></li>
+          </ul>
+        </nav>
       </div>
-    </div>
+      <div className="border-t border-border px-4 py-5 text-center text-xs text-muted-foreground sm:px-6">
+        © PBOX
+      </div>
+    </footer>
   );
-};
+}

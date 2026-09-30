@@ -5,9 +5,9 @@ import CategoryForm from "../../_components/CategoryForm";
 const prisma = new PrismaClient();
 
 interface EditCategoryPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function EditCategoryPage({ params }: EditCategoryPageProps) {

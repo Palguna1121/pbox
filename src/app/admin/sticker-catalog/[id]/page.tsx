@@ -6,13 +6,14 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import DeleteButton from "../_components/DeleteButton";
+import { resolveStickerImage } from "@/lib/catalog-assets";
 
 const prisma = new PrismaClient();
 
 interface StickerDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function StickerDetailPage({ params }: StickerDetailPageProps) {
@@ -48,7 +49,7 @@ export default async function StickerDetailPage({ params }: StickerDetailPagePro
         <Card>
           <CardContent className="p-6">
             <div className="relative aspect-square rounded-md overflow-hidden">
-              <Image src={stickerCatalog.imageUrl} alt={stickerCatalog.stickerName} priority={true} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" />
+              <Image src={resolveStickerImage(stickerCatalog.stickerName, stickerCatalog.imageUrl)} alt={stickerCatalog.stickerName} priority={true} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" />
             </div>
           </CardContent>
         </Card>

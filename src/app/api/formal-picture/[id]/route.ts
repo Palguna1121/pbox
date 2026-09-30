@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { resolveFormalBackground } from "@/lib/catalog-assets";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const formal = await prisma.formalPicture.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!formal) {
@@ -14,7 +16,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     return NextResponse.json({
       id: formal.id,
       name: formal.name,
-      backgroundUrl: formal.backgroundUrl,
+      backgroundUrl: resolveFormalBackground(formal.name, formal.backgroundUrl),
       sizes: formal.sizes,
     });
   } catch (error) {

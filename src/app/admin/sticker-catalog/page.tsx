@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
 import DeleteButton from "./_components/DeleteButton";
+import { resolveStickerImage } from "@/lib/catalog-assets";
 
 const prisma = new PrismaClient();
 
@@ -50,7 +51,7 @@ export default async function StickerCatalogPage() {
                 <TableRow key={sticker.id}>
                   <TableCell>
                     <div className="relative h-12 w-12 rounded-md overflow-hidden">
-                      <Image src={sticker.imageUrl} alt={sticker.stickerName} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" priority={true} className="object-cover" />
+                      <Image src={resolveStickerImage(sticker.stickerName, sticker.imageUrl)} alt={sticker.stickerName} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" priority={true} className="object-cover" />
                     </div>
                   </TableCell>
                   <TableCell>{sticker.stickerName}</TableCell>

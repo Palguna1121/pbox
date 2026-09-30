@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import DeleteCategoryButton from "../_components/DeleteCategoryButton";
+import { resolveFrameImage, resolveStickerImage } from "@/lib/catalog-assets";
 
 const prisma = new PrismaClient();
 
 interface CategoryDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function CategoryDetailPage({ params }: CategoryDetailPageProps) {
@@ -116,8 +117,8 @@ export default async function CategoryDetailPage({ params }: CategoryDetailPageP
                     {category.frameCatalogs.map((frame) => (
                       <TableRow key={frame.id}>
                         <TableCell>
-                          <div className="relative h-12 w-12 rounded-md overflow-hidden">
-                            <Image src={frame.imageUrl} alt={frame.frameName} priority={true} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px)" className="object-cover" />
+                          <div className="frame-preview relative h-12 w-12 rounded-md overflow-hidden">
+                            <Image src={resolveFrameImage(frame.frameName, frame.imageUrl)} alt={frame.frameName} priority={true} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px)" className="object-cover" />
                           </div>
                         </TableCell>
                         <TableCell>{frame.frameName}</TableCell>
@@ -162,7 +163,7 @@ export default async function CategoryDetailPage({ params }: CategoryDetailPageP
                       <TableRow key={sticker.id}>
                         <TableCell>
                           <div className="relative h-12 w-12 rounded-md overflow-hidden">
-                            <Image src={sticker.imageUrl} alt={sticker.stickerName} priority={true} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px)" className="object-cover" />
+                            <Image src={resolveStickerImage(sticker.stickerName, sticker.imageUrl)} alt={sticker.stickerName} priority={true} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px)" className="object-cover" />
                           </div>
                         </TableCell>
                         <TableCell>{sticker.stickerName}</TableCell>

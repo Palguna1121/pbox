@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
 import DeleteButton from "./_components/DeleteButton";
+import { resolveFrameImage } from "@/lib/catalog-assets";
 
 const prisma = new PrismaClient();
 
@@ -49,8 +50,8 @@ export default async function FrameCatalogPage() {
               frameCatalogs.map((frame) => (
                 <TableRow key={frame.id}>
                   <TableCell>
-                    <div className="relative h-12 w-12 rounded-md overflow-hidden">
-                      <Image src={frame.imageUrl} alt={frame.frameName} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" priority={true} className="object-cover" />
+                    <div className="frame-preview relative h-12 w-12 rounded-md overflow-hidden">
+                      <Image src={resolveFrameImage(frame.frameName, frame.imageUrl)} alt={frame.frameName} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" priority={true} className="object-cover" />
                     </div>
                   </TableCell>
                   <TableCell>{frame.frameName}</TableCell>

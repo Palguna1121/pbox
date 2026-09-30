@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { resolveStickerImage } from "@/lib/catalog-assets";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const sticker = await prisma.stickerCatalog.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         category: true,
       },
@@ -17,7 +19,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     return NextResponse.json({
       id: sticker.id,
       name: sticker.stickerName,
-      imageUrl: sticker.imageUrl,
+      imageUrl: resolveStickerImage(sticker.stickerName, sticker.imageUrl),
       category: sticker.category?.name,
     });
   } catch (error) {

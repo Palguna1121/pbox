@@ -1,0 +1,81 @@
+{
+  "design_system": {
+    "color": {
+      "light_background": "hsl(0 0% 100%)",
+      "light_foreground": "hsl(222 47% 11%)",
+      "light_primary": "hsl(352 72% 43%)",
+      "dark_background": "hsl(222 47% 6%)",
+      "dark_foreground": "hsl(0 0% 96%)",
+      "dark_primary": "hsl(352 78% 62%)"
+    },
+    "typography": {
+      "heading": "Geist Sans, 700-900, tight tracking",
+      "body": "Geist Sans, 400-600, relaxed line height",
+      "mono": "Geist Mono for data or code",
+      "display_scale": "3rem to 4.5rem responsive"
+    },
+    "spacing": {
+      "base": "0.25rem Tailwind scale",
+      "section": "5rem mobile, 7rem desktop",
+      "content_padding": "1rem mobile, 1.5rem wider screens"
+    },
+    "layout": {
+      "container": "max-w-7xl",
+      "hero": "full-width photograph with bottom-left copy",
+      "services": "7/5 grid with the first item spanning two rows",
+      "mobile": "single-column layout below 768px"
+    },
+    "shape": {
+      "base_radius": "0.75rem",
+      "large_card_radius": "2rem",
+      "primary_button_radius": "9999px"
+    },
+    "elevation": {
+      "default": "flat semantic surfaces",
+      "primary_cta": "soft coral-tinted shadow"
+    },
+    "motion": {
+      "reveal": "420ms transform and opacity",
+      "mobile_drawer": "240ms transform and opacity",
+      "micro_interaction": "150-200ms",
+      "easing": "cubic-bezier(0.2, 0, 0, 1)",
+      "reduced_motion": "disable translation and minimize duration"
+    },
+    "components": {
+      "hero": "photo, scrim, concise value proposition and two distinct actions",
+      "service_card": "one featured card and two supporting cards",
+      "process": "three accessible rows with icons",
+      "navigation": "shared header with focusable dropdown and animated mobile drawer"
+    }
+  },
+  "design_style": {
+    "mood": "ramah, energik, dan jelas",
+    "personality": "studio foto konsumen yang mudah dipakai",
+    "composition_strategy": "foto dominan, judul ringkas, kartu asimetris, ruang baca lapang",
+    "imagery": "fotografi studio yang menunjukkan manusia dan aktivitas foto",
+    "interaction_feel": "cepat dan ringan dengan feedback yang terlihat",
+    "brand_voice": "bahasa Indonesia langsung tanpa klaim yang belum terbukti",
+    "ornamentation": "rendah; warna coral dan crop foto menjadi penanda utama"
+  },
+  "visual_effects": {
+    "overview": {
+      "effect_intensity": "rendah hingga sedang",
+      "performance_tier": "browser desktop dan ponsel biasa"
+    },
+    "canvas": {
+      "enabled": true,
+      "purpose": "pengolahan foto pada editor, bukan dekorasi landing"
+    },
+    "webgl": { "enabled": false },
+    "particles": { "enabled": false },
+    "shaders": { "enabled": false },
+    "scroll_effects": {
+      "enabled": true,
+      "purpose": "reveal sekali saat bagian masuk viewport"
+    },
+    "cursor_effects": { "enabled": false },
+    "svg_animations": { "enabled": false },
+    "glassmorphism": { "enabled": false },
+    "composite_notes": "Scrim gradasi di atas foto menjaga teks hero tetap terbaca; Motion hanya menganimasikan transform dan opacity."
+  }
+}

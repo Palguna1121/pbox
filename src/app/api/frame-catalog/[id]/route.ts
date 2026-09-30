@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import { uploadFile } from "@/app/utils/imagekit";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
+import { getAuthSession } from "@/lib/auth";
+import { resolveFrameImage } from "@/lib/catalog-assets";
 
 // GET: Mendapatkan detail frame catalog
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const param = await params;
     const frameCatalog = await prisma.frameCatalog.findUnique({
@@ -18,7 +17,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ error: "Frame catalog not found" }, { status: 404 });
     }
 
-    return NextResponse.json(frameCatalog);
+    return NextResponse.json({
+      ...frameCatalog,
+      imageUrl: resolveFrameImage(frameCatalog.frameName, frameCatalog.imageUrl),
+    });
   } catch (error) {
     console.error("Error fetching frame catalog:", error);
     return NextResponse.json({ error: "Failed to fetch frame catalog" }, { status: 500 });
@@ -26,7 +28,12 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // PATCH: Memperbarui frame catalog
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getAuthSession();
+  if (!session || session.user.role !== "admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const param = await params;
     const body = await req.json();
@@ -57,7 +64,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 // DELETE: Menghapus frame catalog
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getAuthSession();
+  if (!session || session.user.role !== "admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const param = await params;
     await prisma.frameCatalog.delete({

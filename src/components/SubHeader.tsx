@@ -1,66 +1,45 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
+
+const ADMIN_NAV = [
+  { label: "Dashboard", href: "/admin/home" },
+  { label: "Frame", href: "/admin/frame-catalog" },
+  { label: "Sticker", href: "/admin/sticker-catalog" },
+  { label: "Kategori", href: "/admin/categories" },
+];
 
 const SubHeader = () => {
   const { data: session } = useSession();
   const pathname = usePathname();
 
-  const submenuItems = [
-    {
-      title: "Dashboard",
-      href: "/admin/home",
-    },
-    {
-      title: "Photobox",
-      href: "/admin/frame-catalog",
-    },
-    {
-      title: "Sticker Pic",
-      href: "/admin/sticker-catalog",
-    },
-    {
-      title: "Categories",
-      href: "/admin/categories",
-    },
-  ];
-
-  // Modified function to check if current path starts with any of the base paths
-  const getActiveSubmenu = () => {
-    // Check if pathname starts with any of the submenu item paths
-    const activeItem = submenuItems.find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
-
-    return activeItem ? activeItem.title : "Home";
-  };
-
-  const [activeSubmenu, setActiveSubmenu] = useState(() => getActiveSubmenu());
-
-  useEffect(() => {
-    setActiveSubmenu(getActiveSubmenu());
-  }, [pathname]);
+  if (session?.user?.role !== "admin") return null;
 
   return (
-    <>
-      {session?.user?.role === "admin" && (
-        <div className="w-full fixed top-20 left-0 border-b border-t border-gray-200 bg-gray-50 z-30">
-          <div className="container mx-auto">
-            <div className="flex overflow-x-auto">
-              {submenuItems.map((item) => (
-                <Link key={item.title} href={item.href} className={`px-6 py-3 font-medium text-sm whitespace-nowrap ${activeSubmenu === item.title ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-900"}`}>
-                  {item.title}
-                </Link>
-              ))}
-            </div>
-          </div>
+    <div className="fixed top-16 inset-x-0 z-40 bg-zinc-950 border-b border-zinc-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex overflow-x-auto scrollbar-none gap-1">
+          {ADMIN_NAV.map((item) => {
+            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`px-4 py-2.5 text-xs font-semibold whitespace-nowrap border-b-2 transition-colors ${
+                  active
+                    ? "text-primary border-primary"
+                    : "text-zinc-400 border-transparent hover:text-zinc-100"
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </div>
-      )}
-
-      {/* Add padding to account for the subheader when it's visible */}
-      {/* {session?.user?.role === "admin" && <div className="h-12"></div>} */}
-    </>
+      </div>
+    </div>
   );
 };
 

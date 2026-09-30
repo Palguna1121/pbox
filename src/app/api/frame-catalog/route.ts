@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import { uploadFile } from "@/app/utils/imagekit";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
+import { getAuthSession } from "@/lib/auth";
+import { resolveFrameImage } from "@/lib/catalog-assets";
 
 // GET: Mendapatkan semua frame catalog
 export async function GET() {
@@ -13,7 +12,10 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json(frameCatalogs);
+    return NextResponse.json(frameCatalogs.map((frame) => ({
+      ...frame,
+      imageUrl: resolveFrameImage(frame.frameName, frame.imageUrl),
+    })));
   } catch (error) {
     console.error("Error fetching frame catalogs:", error);
     return NextResponse.json({ error: "Failed to fetch frame catalogs" }, { status: 500 });
@@ -22,6 +24,11 @@ export async function GET() {
 
 // POST: Membuat frame catalog baru
 export async function POST(req: NextRequest) {
+  const session = await getAuthSession();
+  if (!session || session.user.role !== "admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const { frameName, categoryId, imageUrl } = body;

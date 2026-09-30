@@ -9,7 +9,7 @@ export default function AdminDashboard() {
     totalUsers: 0,
     totalFrames: 0,
     totalStickers: 0,
-    totalTransactions: 100, // Statis untuk sementara
+    totalPhotos: 0,
   });
 
   useEffect(() => {
@@ -49,9 +49,9 @@ export default function AdminDashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Total Transactions</CardTitle>
+          <CardTitle>Total Foto Diambil</CardTitle>
         </CardHeader>
-        <CardContent className="text-3xl font-bold">{stats.totalTransactions}</CardContent>
+        <CardContent className="text-3xl font-bold">{stats.totalPhotos}</CardContent>
       </Card>
     </main>
   );

@@ -6,13 +6,14 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import DeleteButton from "../_components/DeleteButton";
+import { resolveFrameImage } from "@/lib/catalog-assets";
 
 const prisma = new PrismaClient();
 
 interface FrameDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function FrameDetailPage({ params }: FrameDetailPageProps) {
@@ -47,8 +48,8 @@ export default async function FrameDetailPage({ params }: FrameDetailPageProps) 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card>
           <CardContent className="p-6">
-            <div className="relative aspect-square rounded-md overflow-hidden">
-              <Image src={frameCatalog.imageUrl} alt={frameCatalog.frameName} priority={true} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" />
+            <div className="frame-preview relative aspect-[3/4] rounded-md overflow-hidden">
+              <Image src={resolveFrameImage(frameCatalog.frameName, frameCatalog.imageUrl)} alt={frameCatalog.frameName} priority={true} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" />
             </div>
           </CardContent>
         </Card>

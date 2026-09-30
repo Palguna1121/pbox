@@ -1,4 +1,3 @@
-// Perbarui src/components/login-form.tsx
 "use client";
 
 import { useState } from "react";
@@ -8,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { Loader2, AlertCircle } from "lucide-react";
 
 export function LoginForm() {
   const router = useRouter();
@@ -15,106 +15,76 @@ export function LoginForm() {
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-
-  // Cek apakah ada error dari NextAuth
-  const authError = searchParams.get("error");
-
-  // Set error message berdasarkan error dari NextAuth
-  useState(() => {
-    if (authError === "CredentialsSignin") {
-      setError("Email atau password tidak valid");
-    } else if (authError) {
-      setError(`Error: ${authError}`);
-    }
-  });
+  const [error, setError] = useState(
+    searchParams.get("error") === "CredentialsSignin" ? "Email atau password tidak valid" : ""
+  );
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading(true);
     setError("");
-
-    try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError("Email atau password salah!");
-      } else {
-        router.push("/dashboard");
-      }
-    } catch (error) {
-      setError("Terjadi kesalahan sistem");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loginWithGoogle = async () => {
-    try {
-      setIsGoogleLoading(true);
-      await signIn("google", { callbackUrl });
-    } catch (error) {
-      setIsGoogleLoading(false);
-      setError("Terjadi kesalahan sistem");
-    } finally {
-      setIsGoogleLoading(false);
+    const result = await signIn("credentials", { email, password, redirect: false });
+    if (result?.error) {
+      setError("Email atau password salah!");
+      setLoading(false);
+    } else {
+      router.push("/dashboard");
     }
   };
 
   return (
-    <div className="mx-auto space-y-6 w-full max-w-md">
-      <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold">Sign in</h1>
-        <p className="text-gray-500">Masukkan kredensial Anda untuk masuk</p>
+    <div className="bg-card rounded-3xl border border-border shadow-sm p-8 space-y-6">
+      <div className="space-y-1">
+        <p className="text-xs font-semibold text-primary uppercase tracking-widest">Selamat Datang</p>
+        <h1 className="text-3xl font-black tracking-tighter">Masuk ke PBOX</h1>
+        <p className="text-muted-foreground text-sm">
+          Belum punya akun?{" "}
+          <Link href="/register" className="text-primary font-semibold hover:underline">
+            Daftar gratis
+          </Link>
+        </p>
       </div>
 
+      {error && (
+        <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-xl text-sm">
+          <AlertCircle className="w-4 h-4 shrink-0" /> {error}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-4">
-        {error && <div className="p-3 bg-red-100 text-red-600 rounded-md text-sm">{error}</div>}
-
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="nama@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <div className="space-y-1.5">
+          <Label htmlFor="email" className="text-sm font-semibold">Email</Label>
+          <Input id="email" type="email" placeholder="nama@email.com" value={email}
+            onChange={(e) => setEmail(e.target.value)} required className="rounded-xl h-11" />
         </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
-            {/* <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
-              Lupa password?
-            </Link> */}
-          </div>
-          <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required min="8" />
+        <div className="space-y-1.5">
+          <Label htmlFor="password" className="text-sm font-semibold">Password</Label>
+          <Input id="password" type="password" placeholder="••••••••" value={password}
+            onChange={(e) => setPassword(e.target.value)} required className="rounded-xl h-11" />
         </div>
-
-        <Button type="submit" className="w-full mb-4" disabled={isLoading}>
-          {isLoading ? "Loading..." : "Sign in"}
-        </Button>
-
-        <hr className="border-gray-300 my-4" />
-
-        <Button disabled={isGoogleLoading} type="button" className="w-full flex justify-center items-center gap-2" onClick={loginWithGoogle}>
-          <img src="/google-color.svg" alt="Google Logo" className="h-4 w-4" />
-          {isGoogleLoading && (
-            <svg xmlns="www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 mr-2 animate-spin">
-              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-            </svg>
-          )}
-          <span className="text-sm">Sign in with Google</span>
+        <Button type="submit" className="w-full rounded-full h-11 font-bold" disabled={loading}>
+          {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+          {loading ? "Masuk..." : "Masuk"}
         </Button>
       </form>
 
-      <div className="text-center text-sm">
-        Belum punya akun?{" "}
-        <Link href="/register" className="text-blue-600 hover:underline">
-          Daftar sekarang
-        </Link>
+      <div className="relative flex items-center gap-3">
+        <div className="flex-1 border-t border-border" />
+        <span className="text-xs text-muted-foreground">atau</span>
+        <div className="flex-1 border-t border-border" />
       </div>
+
+      <Button type="button" variant="outline" className="w-full rounded-full h-11 font-semibold"
+        onClick={() => { setGoogleLoading(true); signIn("google", { callbackUrl }); }}
+        disabled={googleLoading}>
+        {googleLoading
+          ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          : <img src="/google-color.svg" alt="Google" className="w-4 h-4 mr-2" />
+        }
+        Masuk dengan Google
+      </Button>
     </div>
   );
 }

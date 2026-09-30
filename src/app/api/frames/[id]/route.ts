@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { resolveFrameImage } from "@/lib/catalog-assets";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const param = await params;
     const frame = await prisma.frameCatalog.findUnique({
@@ -19,7 +20,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     return NextResponse.json({
       id: frame.id,
       name: frame.frameName,
-      imageUrl: frame.imageUrl,
+      imageUrl: resolveFrameImage(frame.frameName, frame.imageUrl),
       positions: frame.FramePlaceholders.map((p: any) => ({
         id: p.id,
         x: p.xPosition,

@@ -1,13 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import { notFound } from "next/navigation";
 import FrameForm from "../../_components/FrameForm";
+import { resolveFrameImage } from "@/lib/catalog-assets";
 
 const prisma = new PrismaClient();
 
 interface EditFramePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function EditFramePage({ params }: EditFramePageProps) {
@@ -32,7 +33,7 @@ export default async function EditFramePage({ params }: EditFramePageProps) {
         <p className="text-gray-500">Update frame information</p>
       </div>
 
-      <FrameForm initialData={frameCatalog} isEditing />
+      <FrameForm initialData={{ ...frameCatalog, imageUrl: resolveFrameImage(frameCatalog.frameName, frameCatalog.imageUrl) }} isEditing />
     </div>
   );
 }

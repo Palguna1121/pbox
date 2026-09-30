@@ -1,13 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import { notFound } from "next/navigation";
 import StickerForm from "../../_components/StickerForm";
+import { resolveStickerImage } from "@/lib/catalog-assets";
 
 const prisma = new PrismaClient();
 
 interface EditStickerPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function EditStickerPage({ params }: EditStickerPageProps) {
@@ -32,7 +33,7 @@ export default async function EditStickerPage({ params }: EditStickerPageProps) 
         <p className="text-gray-500">Update sticker information</p>
       </div>
 
-      <StickerForm initialData={stickerCatalog} isEditing />
+      <StickerForm initialData={{ ...stickerCatalog, imageUrl: resolveStickerImage(stickerCatalog.stickerName, stickerCatalog.imageUrl) }} isEditing />
     </div>
   );
 }

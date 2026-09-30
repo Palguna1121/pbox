@@ -1,4 +1,3 @@
-// Perbarui src/components/register-form.tsx
 "use client";
 
 import { useState } from "react";
@@ -7,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { Loader2, AlertCircle } from "lucide-react";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -14,88 +14,74 @@ export function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading(true);
     setError("");
-
     try {
-      const response = await fetch("/api/auth/register", {
+      const res = await fetch("/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-          role: "user",
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, role: "user" }),
       });
-
-      // Handle non-JSON response
-      const contentType = response.headers.get("content-type");
-      if (!contentType?.includes("application/json")) {
-        const text = await response.text();
-        throw new Error(`Unexpected response: ${text.slice(0, 100)}...`);
-      }
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Registration failed");
-      }
-
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Pendaftaran gagal");
       router.push("/login");
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unknown error occurred");
-      }
-    } finally {
-      setIsLoading(false);
+    } catch (err: any) {
+      setError(err.message);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="mx-auto space-y-6 w-full max-w-md">
-      <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold">Daftar Akun</h1>
-        <p className="text-gray-500">Buat akun baru untuk mulai menggunakan aplikasi</p>
+    <div className="bg-card rounded-3xl border border-border shadow-sm p-8 space-y-6">
+      <div className="space-y-1">
+        <p className="text-xs font-semibold text-primary uppercase tracking-widest">Bergabung Sekarang</p>
+        <h1 className="text-3xl font-black tracking-tighter">Buat Akun PBOX</h1>
+        <p className="text-muted-foreground text-sm">
+          Sudah punya akun?{" "}
+          <Link href="/login" className="text-primary font-semibold hover:underline">
+            Masuk di sini
+          </Link>
+        </p>
       </div>
 
+      {error && (
+        <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-xl text-sm">
+          <AlertCircle className="w-4 h-4 shrink-0" /> {error}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-4">
-        {error && <div className="p-3 bg-red-100 text-red-600 rounded-md text-sm">{error}</div>}
-
-        <div className="space-y-2">
-          <Label htmlFor="name">Nama Lengkap</Label>
-          <Input id="name" type="text" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} required />
+        <div className="space-y-1.5">
+          <Label htmlFor="name" className="text-sm font-semibold">Nama Lengkap</Label>
+          <Input id="name" type="text" placeholder="John Doe" value={name}
+            onChange={(e) => setName(e.target.value)} required className="rounded-xl h-11" />
         </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="nama@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <div className="space-y-1.5">
+          <Label htmlFor="email" className="text-sm font-semibold">Email</Label>
+          <Input id="email" type="email" placeholder="nama@email.com" value={email}
+            onChange={(e) => setEmail(e.target.value)} required className="rounded-xl h-11" />
         </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <div className="space-y-1.5">
+          <Label htmlFor="password" className="text-sm font-semibold">Password</Label>
+          <Input id="password" type="password" placeholder="Min. 8 karakter" value={password}
+            onChange={(e) => setPassword(e.target.value)} required minLength={8} className="rounded-xl h-11" />
         </div>
-
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Loading..." : "Daftar"}
+        <Button type="submit" className="w-full rounded-full h-11 font-bold" disabled={loading}>
+          {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+          {loading ? "Mendaftar..." : "Daftar Gratis"}
         </Button>
       </form>
 
-      <div className="text-center text-sm">
-        Sudah punya akun?{" "}
-        <Link href="/login" className="text-blue-600 hover:underline">
-          Login di sini
-        </Link>
-      </div>
+      <p className="text-center text-xs text-muted-foreground">
+        Dengan mendaftar kamu menyetujui{" "}
+        <Link href="#" className="underline">Syarat & Ketentuan</Link>
+        {" "}dan{" "}
+        <Link href="#" className="underline">Kebijakan Privasi</Link>.
+      </p>
     </div>
   );
 }
