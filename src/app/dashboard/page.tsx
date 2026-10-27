@@ -1,118 +1,103 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { Camera, Layers, Sticker, BookImage, Settings, Shield } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { Camera, Settings, Shield, UserRound } from "lucide-react";
+import { PageIntro, PixelLabel } from "@/components/arcade/PageIntro";
+import { Button } from "@/components/ui/button";
+import { MyPhotos } from "@/components/pages/dashboard/MyPhotos";
 
-const services = [
-  {
-    icon: Camera,
-    title: "Photobox",
-    description: "Foto dengan frame pilihan",
-    href: "/photobox",
-    coral: true,
-  },
-  {
-    icon: Sticker,
-    title: "Sticker Pic",
-    description: "Tambahkan sticker ke foto",
-    href: "/sticker-pic",
-  },
-  {
-    icon: BookImage,
-    title: "Formal Pic",
-    description: "Background foto resmi",
-    href: "/formal-pic",
-  },
+const modes = [
+  { title: "Photobox", description: "Foto dengan frame pilihan", href: "/photobox" },
+  { title: "Stiker", description: "Tempel stiker di atas foto", href: "/sticker-pic" },
+  { title: "Formal", description: "Pas foto dengan latar polos", href: "/formal-pic" },
 ];
 
 export default function DashboardPage() {
   const { data: session } = useSession();
   const user = session?.user;
-
-  const initials = user?.name
-    ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-    : "U";
+  const firstName = user?.name?.split(" ")[0];
 
   return (
-    <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
-      <div className="mb-8">
-        <p className="text-primary font-semibold text-sm uppercase tracking-widest mb-1">Dashboard</p>
-        <h1 className="text-4xl font-black tracking-tighter">
-          Halo, <span className="text-primary">{user?.name?.split(" ")[0] ?? "Kamu"}</span>!
-        </h1>
-        <p className="text-muted-foreground text-sm mt-1">Selamat datang kembali di PBOX.</p>
-      </div>
+    <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+      <PageIntro
+        label="Player 1"
+        title={firstName ? `Halo, ${firstName}` : "Halo"}
+        description="Foto yang kamu simpan saat sedang masuk ada di sini. Buka fotonya untuk menyalin tautan bagikan."
+        actions={
+          <Button asChild size="lg">
+            <Link href="/photobox">
+              <Camera aria-hidden="true" />
+              Mulai sesi foto
+            </Link>
+          </Button>
+        }
+        className="mb-12"
+      />
 
-      <div className="grid gap-3 sm:grid-cols-3 mb-8">
-        {services.map((s) => (
-          <Link
-            key={s.href}
-            href={s.href}
-            className={`group rounded-3xl border p-5 flex flex-col gap-3 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ${
-              s.coral
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-card border-border"
-            }`}
-          >
-            <div
-              className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
-                s.coral ? "bg-white/20" : "bg-primary/10"
-              }`}
-            >
-              <s.icon className={`w-5 h-5 ${s.coral ? "text-white" : "text-primary"}`} />
-            </div>
-            <div>
-              <p className={`font-bold text-sm ${s.coral ? "text-white" : ""}`}>{s.title}</p>
-              <p className={`text-xs mt-0.5 ${s.coral ? "text-white/70" : "text-muted-foreground"}`}>
-                {s.description}
-              </p>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <MyPhotos />
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Link
-          href="/settings"
-          className="group rounded-3xl border border-border bg-card p-5 flex items-center gap-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
-        >
-          <div className="w-10 h-10 rounded-2xl bg-muted flex items-center justify-center">
-            <Settings className="w-5 h-5 text-muted-foreground" />
-          </div>
-          <div>
-            <p className="font-bold text-sm">Pengaturan</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Ubah nama & password</p>
-          </div>
-        </Link>
+      <div className="mt-14 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+        <section aria-labelledby="modes-title">
+          <PixelLabel className="text-muted-foreground">Mode</PixelLabel>
+          <h2 id="modes-title" className="font-display mt-2 text-2xl font-bold tracking-tight">
+            Pilih mode foto
+          </h2>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-3">
+            {modes.map((mode, i) => (
+              <li key={mode.href}>
+                <Link
+                  href={mode.href}
+                  className="arcade-panel arcade-press flex h-full flex-col gap-1 p-4 hover:bg-muted"
+                >
+                  <span className="font-mono text-xl leading-none text-primary" aria-hidden="true">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="font-display text-lg font-semibold">{mode.title}</span>
+                  <span className="text-sm text-muted-foreground">{mode.description}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-        <Link
-          href="/profile"
-          className="group rounded-3xl border border-border bg-card p-5 flex items-center gap-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
-        >
-          <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
-            {initials}
-          </div>
-          <div>
-            <p className="font-bold text-sm">Profil Saya</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{user?.email}</p>
-          </div>
-        </Link>
-
-        {user?.role === "admin" && (
-          <Link
-            href="/admin/home"
-            className="group rounded-3xl border border-border bg-foreground text-background p-5 flex items-center gap-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 sm:col-span-2"
-          >
-            <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <p className="font-bold text-sm">Admin Panel</p>
-              <p className="text-xs text-white/60 mt-0.5">Kelola katalog & data</p>
-            </div>
-          </Link>
-        )}
+        <section aria-labelledby="account-title">
+          <PixelLabel className="text-muted-foreground">Akun</PixelLabel>
+          <h2 id="account-title" className="font-display mt-2 text-2xl font-bold tracking-tight">
+            Pengaturan akun
+          </h2>
+          <ul className="arcade-panel mt-4 divide-y-2 divide-border">
+            <li>
+              <Link href="/profile" className="flex min-h-14 items-center gap-3 px-4 py-3 hover:bg-muted">
+                <UserRound className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+                <span className="min-w-0">
+                  <span className="block font-semibold">Profil</span>
+                  <span className="block truncate text-sm text-muted-foreground">{user?.email ?? "Data akun"}</span>
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link href="/settings" className="flex min-h-14 items-center gap-3 px-4 py-3 hover:bg-muted">
+                <Settings className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+                <span>
+                  <span className="block font-semibold">Pengaturan</span>
+                  <span className="block text-sm text-muted-foreground">Ubah nama dan password</span>
+                </span>
+              </Link>
+            </li>
+            {user?.role === "admin" && (
+              <li>
+                <Link href="/admin/home" className="flex min-h-14 items-center gap-3 px-4 py-3 hover:bg-muted">
+                  <Shield className="size-5 shrink-0 text-primary" aria-hidden="true" />
+                  <span>
+                    <span className="block font-semibold">Panel admin</span>
+                    <span className="block text-sm text-muted-foreground">Kelola kategori, frame, dan stiker</span>
+                  </span>
+                </Link>
+              </li>
+            )}
+          </ul>
+        </section>
       </div>
     </main>
   );

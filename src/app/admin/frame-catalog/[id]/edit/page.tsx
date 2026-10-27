@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import FrameForm from "../../_components/FrameForm";
 import { resolveFrameImage } from "@/lib/catalog-assets";
 
-const prisma = new PrismaClient();
+
 
 interface EditFramePageProps {
   params: Promise<{
@@ -29,8 +29,8 @@ export default async function EditFramePage({ params }: EditFramePageProps) {
   return (
     <div className="container mx-auto py-10 px-5 lg:px-0">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Edit Frame</h1>
-        <p className="text-gray-500">Update frame information</p>
+        <h1 className="font-display text-3xl font-bold tracking-tight">Edit frame</h1>
+        <p className="text-muted-foreground">Perbarui data frame</p>
       </div>
 
       <FrameForm initialData={{ ...frameCatalog, imageUrl: resolveFrameImage(frameCatalog.frameName, frameCatalog.imageUrl) }} isEditing />

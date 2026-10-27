@@ -59,11 +59,19 @@ NEXTAUTH_SECRET="isi-dengan-string-random-panjang"
 GOOGLE_CLIENT_ID="isi-dari-google-cloud-console"
 GOOGLE_CLIENT_SECRET="isi-dari-google-cloud-console"
 
-# ImageKit (untuk penyimpanan gambar)
-NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY="public_xxxx"
-IMAGEKIT_PRIVATE_KEY="private_xxxx"
-NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT="https://ik.imagekit.io/id-kamu"
+# URL publik untuk metadata, sitemap, dan tautan share (wajib di produksi)
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+
+# Penyimpanan file lokal. Default: ./storage. Di Docker/VPS arahkan ke volume persisten.
+STORAGE_DIR="/var/lib/pbox/storage"
+
+# Agen booth (opsional, untuk DSLR via gphoto2 dan printer CUPS)
+BOOTH_AGENT_URL="http://127.0.0.1:7788"
+BOOTH_AGENT_TOKEN="string-acak-panjang"
+BOOTH_PUBLIC_PRINT="false"
 ```
+
+Daftar lengkap ada di [.env.example](.env.example). ImageKit dan Pinata tidak dipakai lagi; variabelnya boleh dihapus dari `.env`.
 
 ### Generate NEXTAUTH_SECRET
 
@@ -86,11 +94,24 @@ Salin hasilnya ke `NEXTAUTH_SECRET`.
    ```
 7. Salin **Client ID** dan **Client Secret** ke `.env`
 
-### Mendapatkan ImageKit Credentials
+### Penyimpanan file
 
-1. Daftar di [imagekit.io](https://imagekit.io)
-2. Buka **Dashboard → Developer Options**
-3. Salin **Public Key**, **Private Key**, dan **URL Endpoint** ke `.env`
+Foto hasil dan aset katalog yang diunggah admin ditulis ke `STORAGE_DIR` lalu disajikan lewat `/media/<key>`. Folder ini **harus** berada di volume persisten saat deploy (misalnya volume Docker); tanpa itu file hilang ketika container dibuat ulang. Cadangkan folder ini bersama database.
+
+### Agen booth (opsional)
+
+Untuk mesin booth dengan DSLR dan printer foto:
+
+```bash
+# di mesin booth, butuh gphoto2 dan CUPS
+BOOTH_AGENT_TOKEN=... BOOTH_PRINTER=nama_printer npm run booth:agent
+# latihan tanpa hardware
+BOOTH_SIMULATE=1 BOOTH_AGENT_TOKEN=... npm run booth:agent
+```
+
+Lalu isi `BOOTH_AGENT_URL` dan `BOOTH_AGENT_TOKEN` di `.env` aplikasi. Pilihan "Kamera booth" muncul di studio dan tombol "Kirim ke printer booth" muncul di dialog cetak. Bagian ini belum diuji pada kamera atau printer fisik.
+
+Untuk cetak tanpa dialog di kiosk, jalankan Chrome dengan `--kiosk --kiosk-printing` dan set printer default di OS.
 
 ---
 
@@ -185,10 +206,10 @@ Aplikasi berjalan di: **http://localhost:3000**
 ## Scripts yang Tersedia
 
 ```bash
-npm run dev      # Jalankan development server (Turbopack)
+npm run dev      # Jalankan development server (Turbopack, default Next 16)
 npm run build    # Build untuk production
 npm run start    # Jalankan production server
-npm run lint     # Saat ini membuka wizard konfigurasi ESLint; belum siap sebagai gate otomatis
+npm run lint     # ESLint 9 + eslint-config-next 16; harus 0 error
 ```
 
 ```bash
@@ -222,4 +243,4 @@ Pastikan `GOOGLE_CLIENT_ID` dan `GOOGLE_CLIENT_SECRET` sudah diisi di `.env` dan
 
 ### Gambar tidak tampil
 
-Pastikan variabel `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` dan `NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY` sudah diisi dengan benar.
+Pastikan `STORAGE_DIR` dapat ditulis oleh proses Next.js dan file yang dicari ada di dalamnya. URL `/media/...` memberi 404 bila file tidak ada.

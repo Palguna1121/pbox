@@ -1,22 +1,21 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 
+/** Icons switch via the `dark` class, so the button renders identically on server and client. */
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return <div className="w-11 h-11" />;
 
   return (
     <button
+      type="button"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      aria-label={resolvedTheme === "dark" ? "Gunakan tema terang" : "Gunakan tema gelap"}
+      className="grid size-11 place-items-center rounded-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      aria-label="Ganti tema siang atau malam"
     >
-      {resolvedTheme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      <Sun className="hidden size-4 dark:block" aria-hidden />
+      <Moon className="size-4 dark:hidden" aria-hidden />
     </button>
   );
 }

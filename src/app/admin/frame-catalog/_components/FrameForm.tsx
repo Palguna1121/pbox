@@ -14,10 +14,10 @@ import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   frameName: z.string().min(2, {
-    message: "Frame name must be at least 2 characters.",
+    message: "Nama frame minimal 2 karakter.",
   }),
   categoryId: z.string().min(1, {
-    message: "Category is required.",
+    message: "Pilih kategori dulu.",
   }),
 });
 
@@ -61,7 +61,7 @@ export default function FrameForm({ initialData, isEditing = false }: FrameFormP
     const fetchCategories = async () => {
       try {
         const response = await fetch("/api/categories");
-        if (!response.ok) throw new Error("Failed to fetch categories");
+        if (!response.ok) throw new Error("Gagal memuat kategori");
         const data = await response.json();
         setCategories(data);
       } catch (error) {
@@ -106,7 +106,7 @@ export default function FrameForm({ initialData, isEditing = false }: FrameFormP
           body: formData,
         });
 
-        if (!response.ok) throw new Error("Upload failed");
+        if (!response.ok) throw new Error("Unggah gagal");
         const { url } = await response.json();
         imageUrl = url;
       }
@@ -122,7 +122,7 @@ export default function FrameForm({ initialData, isEditing = false }: FrameFormP
         }),
       });
 
-      if (!response.ok) throw new Error("Save failed");
+      if (!response.ok) throw new Error("Gagal menyimpan");
 
       router.push("/admin/frame-catalog");
       router.refresh();
@@ -142,7 +142,7 @@ export default function FrameForm({ initialData, isEditing = false }: FrameFormP
           name="frameName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Frame Name</FormLabel>
+              <FormLabel>Nama frame</FormLabel>
               <FormControl>
                 <Input {...field} disabled={isLoading} />
               </FormControl>
@@ -156,11 +156,11 @@ export default function FrameForm({ initialData, isEditing = false }: FrameFormP
           name="categoryId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Category</FormLabel>
+              <FormLabel>Kategori</FormLabel>
               <Select disabled={isLoading || categoriesLoading} onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
+                    <SelectValue placeholder="Pilih kategori" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -177,7 +177,7 @@ export default function FrameForm({ initialData, isEditing = false }: FrameFormP
         />
 
         <FormItem>
-          <FormLabel>Frame Image {!isEditing && "(Required)"}</FormLabel>
+          <FormLabel>Gambar frame {!isEditing && "(wajib)"}</FormLabel>
           <FormControl>
             <Input
               type="file"
@@ -192,7 +192,7 @@ export default function FrameForm({ initialData, isEditing = false }: FrameFormP
 
         {previewUrl && (
           <div className="mt-2">
-            <p className="text-sm text-gray-500 mb-2">Image Preview</p>
+            <p className="text-sm text-muted-foreground mb-2">Pratinjau gambar</p>
             <div className="relative h-40 w-40 rounded-md overflow-hidden">
               <Image
                 src={previewUrl}
@@ -210,10 +210,10 @@ export default function FrameForm({ initialData, isEditing = false }: FrameFormP
 
         <div className="flex gap-2">
           <Button type="button" variant="outline" onClick={() => router.push("/admin/frame-catalog")} disabled={isLoading}>
-            Cancel
+            Batal
           </Button>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Saving..." : isEditing ? "Save Changes" : "Create Frame"}
+            {isLoading ? "Menyimpan…" : isEditing ? "Simpan perubahan" : "Tambah frame"}
           </Button>
         </div>
       </form>

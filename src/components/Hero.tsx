@@ -1,111 +1,99 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Camera, Sticker, UserRound } from "lucide-react";
+import { Camera, LayoutGrid } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { MotionReveal } from "@/components/MotionReveal";
 
-const SERVICES = [
-  {
-    title: "Photobox",
-    description: "Ambil foto lalu pilih frame untuk hasil yang terasa personal.",
-    href: "/photobox",
-    icon: Camera,
-    featured: true,
-  },
-  {
-    title: "Sticker Pic",
-    description: "Atur stiker, posisi, dan warna sebelum menyimpan foto.",
-    href: "/sticker-pic",
-    icon: Sticker,
-    featured: false,
-  },
-  {
-    title: "Foto Formal",
-    description: "Pilih latar dan ukuran untuk kebutuhan dokumen.",
-    href: "/formal-pic",
-    icon: UserRound,
-    featured: false,
-  },
+const FACTS = [
+  { value: "3", label: "mode foto" },
+  { value: "0", label: "aplikasi dipasang" },
+  { value: "4R", label: "siap cetak" },
 ];
 
 export function Hero() {
   return (
-    <>
-      <section className="relative isolate flex min-h-[calc(100dvh-4rem)] items-end overflow-hidden bg-zinc-900 text-white">
-        <Image
-          src="/images/pbox-hero.webp"
-          alt="Tiga teman berpose bersama di studio foto berlatar coral"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-[62%_center]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/85 via-zinc-950/45 to-zinc-950/10" aria-hidden="true" />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/65 via-transparent to-transparent" aria-hidden="true" />
-
-        <div className="relative mx-auto w-full max-w-7xl px-4 pb-16 pt-24 sm:px-6 sm:pb-20 lg:pb-24">
-          <MotionReveal>
-            <p className="mb-5 text-sm font-semibold tracking-[0.16em] text-white/85 uppercase">Studio foto online</p>
-            <h1 className="max-w-[11ch] text-balance text-5xl font-black leading-[0.98] tracking-tighter sm:text-6xl lg:text-7xl">
-              Foto seru, sesukamu.
-            </h1>
-          </MotionReveal>
-          <MotionReveal delay={0.09}>
-            <p className="mt-6 max-w-[42ch] text-base leading-relaxed text-white/90 sm:text-lg">
-              Pilih frame, tambahkan stiker, atau siapkan foto formal. Semua dari kamera browser.
-            </p>
-          </MotionReveal>
-          <MotionReveal delay={0.16} className="mt-8 flex flex-wrap items-center gap-4">
-            <Link
-              href="/photobox"
-              className="group inline-flex min-h-12 items-center gap-4 rounded-full bg-primary px-5 py-2 font-semibold text-primary-foreground shadow-[0_10px_32px_hsl(352_68%_25%_/_0.24)] transition-transform duration-150 ease-out hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
-            >
-              Mulai photobox
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-white/20 transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">
-                <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
-              </span>
-            </Link>
-            <a href="#layanan" className="inline-flex min-h-11 items-center rounded-full px-3 font-semibold text-white underline decoration-white/55 underline-offset-4 transition-colors hover:decoration-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
-              Lihat layanan
-            </a>
-          </MotionReveal>
-        </div>
-      </section>
-
-      <section id="layanan" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28" aria-labelledby="layanan-title">
-        <MotionReveal className="mb-9 max-w-2xl">
-          <h2 id="layanan-title" className="text-balance text-4xl font-black tracking-tighter sm:text-5xl">Pilih hasil yang kamu mau.</h2>
-          <p className="mt-4 max-w-[55ch] text-base leading-relaxed text-muted-foreground">
-            Setiap layanan memakai kamera yang sama. Pilih cara mengolah fotonya setelah mengambil gambar.
+    <section className="relative overflow-hidden border-b-2 border-border bg-arcade-grid">
+      <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 pb-16 pt-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:pb-24 lg:pt-20">
+        <MotionReveal>
+          <p className="font-pixel inline-flex items-center gap-2 border-2 border-border bg-card px-3 py-2 text-[0.6rem] uppercase text-primary shadow-arcade-sm">
+            <span className="size-2 animate-blink bg-neon-pink" aria-hidden /> Insert coin · 1 player
           </p>
+          <h1 className="mt-6 font-display text-5xl font-bold leading-[0.95] tracking-tight text-balance sm:text-6xl xl:text-7xl">
+            Photobooth arcade, <span className="text-primary">langsung di browser.</span>
+          </h1>
+          <p className="mt-6 max-w-[52ch] text-lg leading-relaxed text-muted-foreground">
+            Foto lewat webcam atau kamera booth, pasang frame, stiker, teks, dan filter retro. Setelah itu unduh, bagikan lewat QR, atau cetak 4R.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-4">
+            <Button asChild size="lg" variant="secondary">
+              <Link href="/camera?type=sticker"><Camera /> Mulai foto</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link href="/photobox"><LayoutGrid /> Lihat frame</Link>
+            </Button>
+          </div>
+          <dl className="mt-10 grid max-w-md grid-cols-3 gap-3">
+            {FACTS.map((f) => (
+              <div key={f.label} className="border-l-4 border-primary pl-3">
+                <dt className="sr-only">{f.label}</dt>
+                <dd className="font-mono text-4xl leading-none">{f.value}</dd>
+                <dd className="mt-1 text-sm text-muted-foreground">{f.label}</dd>
+              </div>
+            ))}
+          </dl>
         </MotionReveal>
 
-        <div className="grid gap-4 lg:grid-cols-12">
-          {SERVICES.map((service, index) => {
-            const Icon = service.icon;
-            return (
-              <MotionReveal key={service.href} delay={index * 0.07} className={service.featured ? "lg:col-span-7 lg:row-span-2" : "lg:col-span-5"}>
-                <Link
-                  href={service.href}
-                  className={service.featured
-                    ? "group flex h-full min-h-72 flex-col justify-between rounded-[2rem] bg-primary p-7 text-primary-foreground transition-transform duration-200 ease-out hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 sm:p-9"
-                    : "group flex h-full min-h-48 flex-col justify-between rounded-[2rem] bg-muted p-7 text-foreground transition-transform duration-200 ease-out hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 sm:p-9"}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <Icon className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />
-                    <ArrowRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={1.5} aria-hidden="true" />
-                  </div>
-                  <div>
-                    <h3 className={service.featured ? "text-3xl font-black tracking-tight sm:text-4xl" : "text-2xl font-bold tracking-tight"}>{service.title}</h3>
-                    <p className={service.featured ? "mt-2 max-w-[36ch] text-sm leading-relaxed text-primary-foreground/90 sm:text-base" : "mt-2 max-w-[36ch] text-sm leading-relaxed text-muted-foreground sm:text-base"}>
-                      {service.description}
-                    </p>
-                  </div>
-                </Link>
-              </MotionReveal>
-            );
-          })}
+        <MotionReveal delay={0.12}>
+          <ArcadeCabinet />
+        </MotionReveal>
+      </div>
+    </section>
+  );
+}
+
+/** Decorative cabinet framing the hero photo like a CRT screen. */
+function ArcadeCabinet() {
+  return (
+    <div className="relative mx-auto w-full max-w-xl">
+      <div className="rounded-md border-2 border-ink bg-[#1a1538] p-3 shadow-arcade-lg sm:p-5">
+        <div className="mb-3 flex items-center justify-between border-2 border-ink bg-[#ffd23f] px-3 py-2">
+          <span className="font-pixel text-[0.6rem] text-[#0b0820]">PBOX</span>
+          <span className="font-pixel text-[0.5rem] text-[#0b0820]">PHOTO · STAGE 1</span>
         </div>
-      </section>
-    </>
+        <div className="relative aspect-[16/10] overflow-hidden rounded-sm border-4 border-[#05030f] bg-[#05030f]">
+          <Image
+            src="/images/pbox-hero.webp"
+            alt="Tiga teman tertawa sambil berpose di depan kamera photobooth"
+            fill
+            priority
+            sizes="(min-width: 1024px) 560px, 100vw"
+            className="object-cover"
+          />
+          <div className="crt-lines absolute inset-0" aria-hidden />
+          <div className="absolute inset-0 shadow-[inset_0_0_80px_rgb(0_0_0/0.65)]" aria-hidden />
+          <div className="absolute inset-x-0 top-0 flex justify-between p-3 font-pixel text-[0.5rem] text-[#f5efe0]" aria-hidden>
+            <span className="flex items-center gap-1.5"><span className="size-1.5 animate-blink bg-[#ff3d7f]" />REC</span>
+            <span>SHOT 1/4</span>
+          </div>
+          <div className="absolute inset-x-0 bottom-3 text-center font-pixel text-xs text-[#ffd23f] text-outline" aria-hidden>
+            PRESS START
+          </div>
+        </div>
+        <div className="mt-4 flex items-center justify-between px-2" aria-hidden>
+          <div className="relative size-14">
+            <span className="absolute inset-x-5 inset-y-0 rounded-sm bg-[#05030f]" />
+            <span className="absolute inset-x-0 inset-y-5 rounded-sm bg-[#05030f]" />
+          </div>
+          <div className="flex gap-3">
+            <span className="size-10 rounded-full border-2 border-ink bg-[#ff3d7f] shadow-arcade-sm" />
+            <span className="size-10 rounded-full border-2 border-ink bg-[#3ef0ff] shadow-arcade-sm" />
+            <span className="size-10 rounded-full border-2 border-ink bg-[#9cff3a] shadow-arcade-sm" />
+          </div>
+        </div>
+      </div>
+      <div className="absolute -right-3 -top-4 rotate-6 border-2 border-ink bg-neon-pink px-3 py-2 font-pixel text-[0.55rem] text-[#0b0820] shadow-arcade-sm sm:-right-6" aria-hidden>
+        NEW HI-SCORE!
+      </div>
+    </div>
   );
 }

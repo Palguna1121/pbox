@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(2, {
-    message: "Category name must be at least 2 characters.",
+    message: "Nama kategori minimal 2 karakter.",
   }),
   description: z.string().optional(),
 });
@@ -56,7 +56,7 @@ export default function CategoryForm({ initialData, isEditing = false }: Categor
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to save category");
+        throw new Error(errorData.error || "Gagal menyimpan kategori");
       }
 
       router.push("/admin/categories");
@@ -79,7 +79,7 @@ export default function CategoryForm({ initialData, isEditing = false }: Categor
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Category Name</FormLabel>
+              <FormLabel>Nama kategori</FormLabel>
               <FormControl>
                 <Input {...field} disabled={isLoading} />
               </FormControl>
@@ -93,9 +93,9 @@ export default function CategoryForm({ initialData, isEditing = false }: Categor
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Deskripsi</FormLabel>
               <FormControl>
-                <Textarea placeholder="Enter category description (optional)" {...field} disabled={isLoading} />
+                <Textarea placeholder="Deskripsi singkat (opsional)" {...field} disabled={isLoading} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -106,10 +106,10 @@ export default function CategoryForm({ initialData, isEditing = false }: Categor
 
         <div className="flex gap-2">
           <Button type="button" variant="outline" onClick={() => router.push("/admin/categories")} disabled={isLoading}>
-            Cancel
+            Batal
           </Button>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Saving..." : isEditing ? "Save Changes" : "Create Category"}
+            {isLoading ? "Menyimpan…" : isEditing ? "Simpan perubahan" : "Tambah kategori"}
           </Button>
         </div>
       </form>

@@ -1,76 +1,114 @@
+import type { Metadata } from "next";
+import { cache } from "react";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { resolveFrameImage } from "@/lib/catalog-assets";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Camera } from "lucide-react";
+import { prisma } from "@/lib/prisma";
+import { resolveFrameImage } from "@/lib/catalog-assets";
+import { PixelLabel } from "@/components/arcade/PageIntro";
+import { Button } from "@/components/ui/button";
 
-async function getFrame(id: string) {
-  return prisma.frameCatalog.findUnique({
+type Props = { params: Promise<{ id: string }> };
+
+const getFrame = cache(async (id: string) =>
+  prisma.frameCatalog.findUnique({
     where: { id },
     include: { category: true, FramePlaceholders: true },
-  });
-}
+  }),
+);
 
-export default async function FrameDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const frame = await getFrame(id);
-  if (!frame) return notFound();
+  if (!frame) return { title: "Frame tidak ditemukan", robots: { index: false } };
+
+  const slots = frame.FramePlaceholders.length;
+  const description = `Frame ${frame.frameName} kategori ${frame.category?.name || "Umum"}${
+    slots ? ` dengan ${slots} slot foto` : ""
+  }. Ambil foto dari kamera dan langsung pasang di frame ini.`;
+  const image = resolveFrameImage(frame.frameName, frame.imageUrl);
+
+  return {
+    title: frame.frameName,
+    description,
+    alternates: { canonical: `/photobox/${frame.id}` },
+    openGraph: {
+      title: `${frame.frameName} | PBOX`,
+      description,
+      url: `/photobox/${frame.id}`,
+      images: [{ url: image, alt: `Frame ${frame.frameName}` }],
+    },
+    twitter: { card: "summary_large_image", images: [image] },
+  };
+}
+
+const dateFormat = new Intl.DateTimeFormat("id-ID", { year: "numeric", month: "long", day: "numeric" });
+
+export default async function FrameDetailPage({ params }: Props) {
+  const { id } = await params;
+  const frame = await getFrame(id);
+  if (!frame) notFound();
+
+  const slots = frame.FramePlaceholders.length;
 
   return (
-    <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+    <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
       <Link
         href="/photobox"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors"
+        className="mb-8 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
       >
-        <ArrowLeft className="w-4 h-4" />
-        Kembali ke Katalog Frame
+        <ArrowLeft className="size-4" aria-hidden="true" />
+        Kembali ke katalog frame
       </Link>
 
-      <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-        <div className="frame-preview relative aspect-[3/4] w-full rounded-3xl overflow-hidden border border-border">
-          <Image
-            src={resolveFrameImage(frame.frameName, frame.imageUrl)}
-            alt={frame.frameName}
-            fill
-            priority
-            sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-contain"
-          />
+      <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
+        <div className="arcade-panel p-2 sm:p-3">
+          <div className="frame-preview relative aspect-3/4 w-full overflow-hidden rounded-sm border-2 border-border">
+            <Image
+              src={resolveFrameImage(frame.frameName, frame.imageUrl)}
+              alt={`Frame ${frame.frameName} di atas foto contoh`}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-contain"
+            />
+          </div>
+          <p className="mt-2 px-1 text-xs text-muted-foreground">Foto di balik frame hanya contoh tampilan slot.</p>
         </div>
 
-        <div className="flex flex-col justify-center space-y-6">
+        <div className="flex flex-col justify-center gap-6">
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1 rounded-full">
-              {frame.category?.name || "Umum"}
-            </span>
-            <h1 className="text-4xl sm:text-5xl font-black tracking-tighter mt-4 leading-tight">
+            <PixelLabel className="text-primary">{frame.category?.name || "Umum"}</PixelLabel>
+            <h1 className="font-display mt-3 text-4xl font-bold leading-[1.05] tracking-tight text-balance sm:text-5xl">
               {frame.frameName}
             </h1>
-            <p className="text-muted-foreground text-sm mt-2">
-              Diunggah {new Date(frame.createdAt).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" })}
+            <p className="mt-3 text-sm text-muted-foreground">
+              Ditambahkan {dateFormat.format(new Date(frame.createdAt))}
             </p>
           </div>
 
-          {frame.FramePlaceholders.length > 0 && (
-            <div className="bg-muted rounded-2xl p-4 space-y-2">
-              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                Slot Foto
-              </p>
-              <p className="text-2xl font-black">
-                {frame.FramePlaceholders.length}
-                <span className="text-base font-normal text-muted-foreground ml-2">foto</span>
-              </p>
-            </div>
+          {slots > 0 && (
+            <dl className="arcade-panel flex flex-row-reverse items-center justify-end gap-4 px-4 py-3">
+              <dt className="flex flex-col gap-1.5">
+                <PixelLabel className="text-muted-foreground">Slot foto</PixelLabel>
+                <span className="text-sm text-muted-foreground">Area foto yang ada di frame ini.</span>
+              </dt>
+              <dd className="font-mono text-5xl leading-none text-primary">{slots}</dd>
+            </dl>
           )}
 
-          <Link
-            href={`/camera?type=frame`}
-            className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground font-bold rounded-full px-8 py-4 text-sm hover:bg-primary/90 transition-colors w-full sm:w-auto"
-          >
-            <Camera className="w-4 h-4" />
-            Mulai Foto
-          </Link>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button asChild size="lg" className="w-full sm:w-auto">
+              <Link href={`/camera?type=frame&frameId=${encodeURIComponent(frame.id)}`}>
+                <Camera aria-hidden="true" />
+                Mulai foto
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
+              <Link href="/photobox">Ganti frame</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </main>

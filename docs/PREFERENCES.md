@@ -17,7 +17,7 @@ Ini adalah aturan kerja PBOX untuk orang atau agen yang melanjutkan proyek. Sumb
 
 ## Desain dan aset
 
-- Pertahankan identitas coral PBOX, sistem token terang/gelap, serta copy yang sederhana. Ikuti [DESIGN.md](DESIGN.md) sebelum menambah pola visual baru.
+- Pertahankan identitas arcade PBOX (Arcade Night/Arcade Day), sistem token terang/gelap, serta copy yang sederhana. Ikuti [DESIGN.md](DESIGN.md) sebelum menambah pola visual baru.
 - Gunakan gambar untuk tugas yang memang memerlukan fotografi. Simpan master di `assets/source/` dan turunan ringan di `public/images/`; tautan aplikasi harus menunjuk ke turunan web.
 - Pakai Motion hanya ketika animasi membantu hirarki atau umpan balik. Hormati reduced motion. Pertahankan keyboard, fokus terlihat, kontras, target sentuh, dan layout responsif.
 - Jangan menampilkan angka, testimoni, atau kemampuan yang belum didukung data dan kode sebagai fakta produk.

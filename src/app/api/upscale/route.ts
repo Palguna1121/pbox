@@ -3,8 +3,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { spawn } from "child_process";
 import path from "path";
 import { Readable } from "stream";
+import { getAuthSession } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
+  // Spawns a Python process per request; keep it admin-only until the integration is finished.
+  const session = await getAuthSession();
+  if (session?.user?.role !== "admin") {
+    return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body = await request.json();
     const { imageData } = body;

@@ -1,9 +1,11 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Mail, Shield } from "lucide-react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { Mail, Settings, Shield, User } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { PageIntro } from "@/components/arcade/PageIntro";
 
 export default function ProfilePage() {
   const { data: session } = useSession();
@@ -11,75 +13,49 @@ export default function ProfilePage() {
 
   const initials = user?.name
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-    : "U";
+    : "P1";
+
+  const rows = [
+    { icon: User, label: "Nama", value: user?.name ?? "—" },
+    { icon: Mail, label: "Email", value: user?.email ?? "—" },
+    { icon: Shield, label: "Peran", value: user?.role === "admin" ? "Admin" : "Pengguna" },
+  ];
 
   return (
-    <main className="max-w-lg mx-auto px-4 sm:px-6 py-10">
-      <div className="mb-8">
-        <p className="text-primary font-semibold text-sm uppercase tracking-widest mb-1">Akun</p>
-        <h1 className="text-4xl font-black tracking-tighter">Profil <span className="text-primary">Saya</span></h1>
-      </div>
+    <main className="mx-auto max-w-xl px-4 py-10 sm:px-6 sm:py-14">
+      <PageIntro label="Player card" title="Profil" className="mb-10" />
 
-      <div className="bg-card rounded-3xl border border-border p-6 sm:p-8 space-y-6">
-        <div className="flex items-center gap-5">
-          <Avatar className="w-16 h-16 text-lg border-2 border-primary/20">
-            <AvatarImage src={user?.image ?? undefined} alt={user?.name ?? "User"} />
-            <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg">
-              {initials}
-            </AvatarFallback>
+      <div className="arcade-panel overflow-hidden">
+        <div className="flex items-center gap-5 border-b-2 border-border bg-muted p-6">
+          <Avatar className="size-16">
+            <AvatarImage src={user?.image ?? undefined} alt="" />
+            <AvatarFallback className="bg-primary font-pixel text-xs text-primary-foreground">{initials}</AvatarFallback>
           </Avatar>
-          <div>
-            <p className="font-black text-xl tracking-tight">{user?.name ?? "—"}</p>
-            <span className={`text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded-full mt-1 inline-block ${
-              user?.role === "admin"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground"
-            }`}>
-              {user?.role === "admin" ? "Admin" : "User"}
+          <div className="min-w-0">
+            <p className="truncate font-display text-2xl font-bold">{user?.name ?? "—"}</p>
+            <span className="mt-1 inline-block border-2 border-ink bg-coin px-2 py-0.5 font-pixel text-[0.5rem] uppercase text-[#0b0820]">
+              {user?.role === "admin" ? "Admin" : "Player 1"}
             </span>
           </div>
         </div>
 
-        <div className="h-px bg-border" />
+        <dl className="divide-y-2 divide-border">
+          {rows.map((r) => (
+            <div key={r.label} className="flex items-center gap-4 px-6 py-4">
+              <r.icon className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+              <div className="min-w-0">
+                <dt className="text-sm text-muted-foreground">{r.label}</dt>
+                <dd className="truncate font-semibold">{r.value}</dd>
+              </div>
+            </div>
+          ))}
+        </dl>
 
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 text-sm">
-            <div className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center shrink-0">
-              <User className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Nama</p>
-              <p className="font-semibold">{user?.name ?? "—"}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            <div className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center shrink-0">
-              <Mail className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Email</p>
-              <p className="font-semibold">{user?.email ?? "—"}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            <div className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center shrink-0">
-              <Shield className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Peran</p>
-              <p className="font-semibold capitalize">{user?.role ?? "user"}</p>
-            </div>
-          </div>
+        <div className="border-t-2 border-border p-6">
+          <Button asChild variant="outline" className="w-full">
+            <Link href="/settings"><Settings /> Ubah nama atau password</Link>
+          </Button>
         </div>
-
-        <div className="h-px bg-border" />
-
-        <Link
-          href="/settings"
-          className="inline-flex items-center justify-center w-full rounded-full border border-border bg-muted py-3 text-sm font-semibold hover:bg-border transition-colors"
-        >
-          Edit Profil
-        </Link>
       </div>
     </main>
   );

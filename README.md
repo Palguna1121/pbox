@@ -1,6 +1,6 @@
 # PBOX
 
-PBOX adalah aplikasi studio foto berbasis web. Pengunjung dapat melihat katalog frame, stiker, dan latar foto formal; kamera browser dan editor canvas dipakai untuk membuat foto. Hasil yang disimpan dikirim ke ImageKit, sedangkan metadata dan katalog disimpan di PostgreSQL.
+PBOX adalah aplikasi studio foto berbasis web. Pengunjung dapat melihat katalog frame, stiker, dan latar foto formal; kamera browser dan editor canvas dipakai untuk membuat foto. Tampilannya bertema arcade/retro. Editor berbasis fabric.js mendukung frame multi-slot, stiker, teks, kuas, filter, layer, undo, dan hapus latar di perangkat. Hasil disimpan ke disk lokal (`STORAGE_DIR`), metadata dan katalog di PostgreSQL, lalu dapat diunduh, dibagikan lewat tautan dan QR, atau dicetak.
 
 ## Mulai di sini
 
@@ -28,4 +28,4 @@ Buka `http://localhost:3000`. Seed membuat akun dan konten contoh; kredensial co
 
 ## Teknologi utama
 
-Next.js 15 App Router, React 19, TypeScript, Tailwind CSS, Motion, NextAuth v4, Prisma 6, PostgreSQL 15, dan ImageKit. Upscaling RealESRGAN memiliki kode Python, tetapi integrasi API-nya belum siap digunakan; lihat catatan di [dokumen handoff](docs/HANDOFF.md#batasan-dan-pekerjaan-lanjutan).
+Next.js 16 App Router (Turbopack), React 19.3, TypeScript, Tailwind CSS v4, Motion, komponen KaraUI (registry shadcn, MIT), fabric.js 6, MediaPipe Tasks Vision, NextAuth v4, Prisma 6, PostgreSQL 15, dan sharp untuk validasi gambar. Upscaling RealESRGAN memiliki kode Python, tetapi integrasi API-nya belum siap digunakan; lihat catatan di [dokumen handoff](docs/HANDOFF.md#batasan-dan-pekerjaan-lanjutan).

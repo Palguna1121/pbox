@@ -1,61 +1,84 @@
-import Link from "next/link";
-import Image from "next/image";
-import { ArrowRight } from "lucide-react";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { resolveFormalBackground } from "@/lib/catalog-assets";
+import { PageIntro } from "@/components/arcade/PageIntro";
+import { CartridgeCard } from "@/components/pages/catalog/CartridgeCard";
+import { ArcadeEmpty, CatalogModeNav, ScoreReadout } from "@/components/pages/catalog/CatalogHud";
+
+export const metadata: Metadata = {
+  title: "Pas Foto Online dengan Latar Formal",
+  description:
+    "Pilih warna latar untuk pas foto, ambil foto dari kamera, atur posisi, lalu unduh sesuai ukuran cetak yang kamu butuhkan.",
+  alternates: { canonical: "/formal-pic" },
+  openGraph: {
+    title: "Pas Foto Online dengan Latar Formal | PBOX",
+    description: "Pilih latar, ambil foto dari kamera, lalu unduh pas foto sesuai ukuran.",
+    url: "/formal-pic",
+  },
+};
 
 async function getFormalPictures() {
   return prisma.formalPicture.findMany({ orderBy: { createdAt: "desc" } });
+}
+
+/** `sizes` is stored as JSON; read only the names that are really there. */
+function sizeNames(sizes: unknown): string[] {
+  if (!Array.isArray(sizes)) return [];
+  return sizes
+    .map((s) => (s && typeof s === "object" && "name" in s ? (s as { name: unknown }).name : null))
+    .filter((name): name is string => typeof name === "string" && name.length > 0);
 }
 
 export default async function FormalPicPage() {
   const formals = await getFormalPictures();
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-      <div className="mb-8">
-        <p className="text-primary font-semibold text-sm uppercase tracking-widest mb-1">Foto Formal</p>
-        <h1 className="text-4xl sm:text-5xl font-black tracking-tighter">
-          Pilih <span className="text-primary">Background</span>
-        </h1>
-        <p className="text-muted-foreground mt-2 text-sm sm:text-base">
-          {formals.length} background tersedia — cocok untuk KTP, CV, dan dokumen resmi.
-        </p>
-      </div>
+    <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
+      <CatalogModeNav current="formal" />
+      <PageIntro
+        label="Formal mode"
+        title="Pilih latar pas foto"
+        description="Pilih warna latar yang diminta dokumenmu. Kamera langsung terbuka dengan latar itu, lalu kamu bisa mengatur posisi dan ukuran cetak di editor."
+        actions={<ScoreReadout label="Latar" value={formals.length} />}
+        className="mb-10"
+      />
 
       {formals.length === 0 ? (
-        <div className="text-center py-24 text-muted-foreground">
-          <p className="text-5xl mb-4">🎞️</p>
-          <p className="font-semibold">Belum ada background tersedia.</p>
-        </div>
+        <ArcadeEmpty
+          title="Belum ada latar"
+          description="Latar pas foto belum ditambahkan. Coba mode frame atau stiker sementara ini."
+        />
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {formals.map((bg) => (
-            <Link key={bg.id} href={`/camera?type=formal`} className="group">
-              <div className="bg-card rounded-3xl border border-border overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
-                <div className="relative aspect-[3/4] w-full overflow-hidden">
-                  <Image
-                    src={resolveFormalBackground(bg.name, bg.backgroundUrl)}
-                    alt={bg.name}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <div className="p-3">
-                  <p className="font-bold text-sm leading-tight">{bg.name}</p>
-                  <div className="flex items-center justify-between mt-2.5">
-                    <span className="text-xs text-muted-foreground">Pilih</span>
-                    <div className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                      <ArrowRight className="w-3 h-3" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          {formals.map((bg, i) => {
+            const sizes = sizeNames(bg.sizes);
+            return (
+              <li key={bg.id}>
+                <CartridgeCard
+                  href={`/camera?type=formal&formalId=${encodeURIComponent(bg.id)}`}
+                  imageSrc={resolveFormalBackground(bg.name, bg.backgroundUrl)}
+                  imageAlt={`Contoh warna ${bg.name}`}
+                  title={bg.name.replace(/^Background\s+/i, "Latar ")}
+                  slot={i + 1}
+                  cta="Pakai latar ini"
+                  meta={
+                    sizes.length > 0 ? (
+                      <p className="text-xs leading-relaxed text-muted-foreground">{sizes.join(" · ")}</p>
+                    ) : null
+                  }
+                  mediaClassName="aspect-3/4"
+                  imageClassName="object-cover"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                  priority={i < 5}
+                />
+              </li>
+            );
+          })}
+        </ul>
       )}
     </main>
   );
 }
+
+// Catalog changes made in admin appear within a minute without a rebuild.
+export const revalidate = 60;

@@ -14,10 +14,10 @@ import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   stickerName: z.string().min(2, {
-    message: "Sticker name must be at least 2 characters.",
+    message: "Nama stiker minimal 2 karakter.",
   }),
   categoryId: z.string().min(1, {
-    message: "Category is required.",
+    message: "Pilih kategori dulu.",
   }),
 });
 
@@ -61,7 +61,7 @@ export default function StickerForm({ initialData, isEditing = false }: StickerF
     const fetchCategories = async () => {
       try {
         const response = await fetch("/api/categories");
-        if (!response.ok) throw new Error("Failed to fetch categories");
+        if (!response.ok) throw new Error("Gagal memuat kategori");
         const data = await response.json();
         setCategories(data);
       } catch (error) {
@@ -106,7 +106,7 @@ export default function StickerForm({ initialData, isEditing = false }: StickerF
           body: formData,
         });
 
-        if (!response.ok) throw new Error("Upload failed");
+        if (!response.ok) throw new Error("Unggah gagal");
         const { url } = await response.json();
         imageUrl = url;
       }
@@ -122,7 +122,7 @@ export default function StickerForm({ initialData, isEditing = false }: StickerF
         }),
       });
 
-      if (!response.ok) throw new Error("Save failed");
+      if (!response.ok) throw new Error("Gagal menyimpan");
 
       router.push("/admin/sticker-catalog");
       router.refresh();
@@ -142,7 +142,7 @@ export default function StickerForm({ initialData, isEditing = false }: StickerF
           name="stickerName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Sticker Name</FormLabel>
+              <FormLabel>Nama stiker</FormLabel>
               <FormControl>
                 <Input {...field} disabled={isLoading} />
               </FormControl>
@@ -156,11 +156,11 @@ export default function StickerForm({ initialData, isEditing = false }: StickerF
           name="categoryId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Category</FormLabel>
+              <FormLabel>Kategori</FormLabel>
               <Select disabled={isLoading || categoriesLoading} onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
+                    <SelectValue placeholder="Pilih kategori" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -177,7 +177,7 @@ export default function StickerForm({ initialData, isEditing = false }: StickerF
         />
 
         <FormItem>
-          <FormLabel>Sticker Image {!isEditing && "(Required)"}</FormLabel>
+          <FormLabel>Gambar stiker {!isEditing && "(wajib)"}</FormLabel>
           <FormControl>
             <Input
               type="file"
@@ -192,7 +192,7 @@ export default function StickerForm({ initialData, isEditing = false }: StickerF
 
         {previewUrl && (
           <div className="mt-2">
-            <p className="text-sm text-gray-500 mb-2">Image Preview</p>
+            <p className="text-sm text-muted-foreground mb-2">Pratinjau gambar</p>
             <div className="relative h-40 w-40 rounded-md overflow-hidden">
               <Image src={previewUrl} alt="Sticker preview" fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" priority={true} />
             </div>
@@ -203,10 +203,10 @@ export default function StickerForm({ initialData, isEditing = false }: StickerF
 
         <div className="flex gap-2">
           <Button type="button" variant="outline" onClick={() => router.push("/admin/sticker-catalog")} disabled={isLoading}>
-            Cancel
+            Batal
           </Button>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Saving..." : isEditing ? "Save Changes" : "Create Sticker"}
+            {isLoading ? "Menyimpan…" : isEditing ? "Simpan perubahan" : "Tambah stiker"}
           </Button>
         </div>
       </form>

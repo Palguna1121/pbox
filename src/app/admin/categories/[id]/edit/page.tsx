@@ -1,8 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import CategoryForm from "../../_components/CategoryForm";
 
-const prisma = new PrismaClient();
+
 
 interface EditCategoryPageProps {
   params: Promise<{
@@ -25,8 +25,8 @@ export default async function EditCategoryPage({ params }: EditCategoryPageProps
   return (
     <div className="container mx-auto py-10 px-5 lg:px-0">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Edit Category</h1>
-        <p className="text-gray-500">Update category information</p>
+        <h1 className="font-display text-3xl font-bold tracking-tight">Edit kategori</h1>
+        <p className="text-muted-foreground">Perbarui data kategori</p>
       </div>
 
       <div className="max-w-xl">

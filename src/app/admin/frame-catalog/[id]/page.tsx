@@ -1,14 +1,15 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
+import { id as localeId } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import DeleteButton from "../_components/DeleteButton";
 import { resolveFrameImage } from "@/lib/catalog-assets";
 
-const prisma = new PrismaClient();
+
 
 interface FrameDetailPageProps {
   params: Promise<{
@@ -34,13 +35,13 @@ export default async function FrameDetailPage({ params }: FrameDetailPageProps) 
   return (
     <div className="container mx-auto py-10 px-5 lg:px-0">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Frame Details</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight">Detail frame</h1>
         <div className="flex gap-2">
           <Link href="/admin/frame-catalog">
-            <Button variant="outline">Back to List</Button>
+            <Button variant="outline">Kembali ke daftar</Button>
           </Link>
           <Link href={`/admin/frame-catalog/${param.id}/edit`}>
-            <Button>Edit Frame</Button>
+            <Button>Edit frame</Button>
           </Link>
         </div>
       </div>
@@ -48,7 +49,7 @@ export default async function FrameDetailPage({ params }: FrameDetailPageProps) 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card>
           <CardContent className="p-6">
-            <div className="frame-preview relative aspect-[3/4] rounded-md overflow-hidden">
+            <div className="frame-preview relative aspect-3/4 rounded-md overflow-hidden">
               <Image src={resolveFrameImage(frameCatalog.frameName, frameCatalog.imageUrl)} alt={frameCatalog.frameName} priority={true} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" />
             </div>
           </CardContent>
@@ -58,23 +59,23 @@ export default async function FrameDetailPage({ params }: FrameDetailPageProps) 
           <CardContent className="p-6">
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-gray-500">Frame Name</h3>
+                <h3 className="text-sm font-medium text-muted-foreground">Nama frame</h3>
                 <p className="text-lg">{frameCatalog.frameName}</p>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-500">Category</h3>
+                <h3 className="text-sm font-medium text-muted-foreground">Kategori</h3>
                 <p className="text-lg capitalize">{frameCatalog.category.name}</p>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-500">Created At</h3>
-                <p className="text-lg">{format(new Date(frameCatalog.createdAt), "PPP")}</p>
+                <h3 className="text-sm font-medium text-muted-foreground">Dibuat</h3>
+                <p className="text-lg">{format(new Date(frameCatalog.createdAt), "d MMMM yyyy", { locale: localeId })}</p>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-500">Last Updated</h3>
-                <p className="text-lg">{format(new Date(frameCatalog.updatedAt), "PPP")}</p>
+                <h3 className="text-sm font-medium text-muted-foreground">Terakhir diubah</h3>
+                <p className="text-lg">{format(new Date(frameCatalog.updatedAt), "d MMMM yyyy", { locale: localeId })}</p>
               </div>
 
               <div className="pt-4">

@@ -1,10 +1,11 @@
-// src/app/(auth)/register/page.tsx
+import type { Metadata } from "next";
 import { RegisterForm } from "@/components/RegisterForm";
-import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Daftar - PBOX",
-  description: "Daftar akun baru",
+  title: "Daftar",
+  description: "Buat akun PBOX supaya foto hasil sesi tersimpan di dashboard.",
+  alternates: { canonical: "/register" },
+  robots: { index: false, follow: false },
 };
 
 export default function RegisterPage() {

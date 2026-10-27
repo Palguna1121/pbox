@@ -28,28 +28,28 @@ export default function AdminDashboard() {
     <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6">
       <Card>
         <CardHeader>
-          <CardTitle>Total Users</CardTitle>
+          <CardTitle>Total pengguna</CardTitle>
         </CardHeader>
         <CardContent className="text-3xl font-bold">{stats.totalUsers}</CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Total Frame Catalog</CardTitle>
+          <CardTitle>Katalog frame</CardTitle>
         </CardHeader>
         <CardContent className="text-3xl font-bold">{stats.totalFrames}</CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Total Sticker Catalog</CardTitle>
+          <CardTitle>Katalog stiker</CardTitle>
         </CardHeader>
         <CardContent className="text-3xl font-bold">{stats.totalStickers}</CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Total Foto Diambil</CardTitle>
+          <CardTitle>Foto tersimpan</CardTitle>
         </CardHeader>
         <CardContent className="text-3xl font-bold">{stats.totalPhotos}</CardContent>
       </Card>

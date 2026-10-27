@@ -7,6 +7,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
 import { compare } from "@/lib/bcrypt";
 import NextAuth from "next-auth";
+import type { AdapterUser } from "next-auth/adapters";
 // Perluas tipe Session dan JWT untuk user
 declare module "next-auth" {
   interface Session {
@@ -39,7 +40,7 @@ declare module "next-auth/jwt" {
 export const authOptions: NextAuthOptions = {
   adapter: {
     ...PrismaAdapter(prisma),
-    createUser: async (data: any) => {
+    createUser: async (data: Omit<AdapterUser, "id"> & { password?: string | null }) => {
       // Handle OAuth user creation without password
       return prisma.user.create({
         data: {
@@ -97,12 +98,16 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          if (user.password) {
-            const passwordMatch = await compare(credentials.password, user.password);
-            if (!passwordMatch) {
-              console.log("Password doesn't match");
-              return null;
-            }
+          // OAuth-only accounts have no password and must not sign in with credentials.
+          if (!user.password) {
+            console.log("Account has no password");
+            return null;
+          }
+
+          const passwordMatch = await compare(credentials.password, user.password);
+          if (!passwordMatch) {
+            console.log("Password doesn't match");
+            return null;
           }
 
           console.log("Authentication successful");

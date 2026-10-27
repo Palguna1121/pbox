@@ -2,6 +2,16 @@
 
 Katalog contoh sekarang memakai file lokal. Master disimpan di `assets/source/`, sedangkan URL aplikasi menunjuk ke `public/images/`. Jangan jalankan seed hanya untuk mengganti URL pada database yang sudah berisi data pengguna.
 
+## Identitas pBox
+
+| Jenis | Master | Versi aplikasi | Pemakaian |
+| --- | --- | --- | --- |
+| Ikon persegi | `assets/source/brand/pbox-icon-master.png` | `public/images/pbox-icon.png` | Ikon sitelogo/favicon; transparan |
+| Eksplorasi bertumpuk | `assets/source/brand/pbox-stacked-concept.png` | — | Master eksplorasi imagegen rasio 1:1.2 |
+| Eksplorasi horizontal | `assets/source/brand/pbox-horizontal-concept-dark.png`, `assets/source/brand/pbox-horizontal-concept-light.png` | — | Master eksplorasi imagegen rasio 3:1 |
+
+Mark ikon sudah membentuk huruf `P`, sehingga header dan footer menampilkan ikon diikuti teks Geist `Box` saja. Master eksplorasi horizontal dan bertumpuk tidak dipakai langsung karena generator menulis kapitalisasi `pBOX`; simpan sebagai referensi rasio/arah visual, bukan aset aplikasi. Ikon dan seluruh master dibuat dengan imagegen bawaan berlatar transparan.
+
 | Jenis | Jumlah | Master | Versi web | Fungsi |
 | --- | ---: | --- | --- | --- |
 | Frame | 20 | `assets/source/frames/*.svg` | `public/images/frames/*.png` | Overlay 480 × 640 dengan lubang transparan sesuai `FramePlaceholder` |

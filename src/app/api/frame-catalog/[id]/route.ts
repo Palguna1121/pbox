@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { deleteStoredFile, keyFromMediaUrl } from "@/lib/storage";
 import { getAuthSession } from "@/lib/auth";
 import { resolveFrameImage } from "@/lib/catalog-assets";
 
@@ -44,6 +45,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    // A new overlay invalidates old slot coordinates; GET /api/frames/[id] re-detects them.
+    const current = await prisma.frameCatalog.findUnique({ where: { id: param.id }, select: { imageUrl: true } });
+    if (imageUrl && current && imageUrl !== current.imageUrl) {
+      await prisma.framePlaceholder.deleteMany({ where: { frameId: param.id } });
+    }
+
     const frameCatalog = await prisma.frameCatalog.update({
       where: { id: param.id },
       data: {
@@ -72,11 +79,14 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   try {
     const param = await params;
-    await prisma.frameCatalog.delete({
+    const deleted = await prisma.frameCatalog.delete({
       where: {
         id: param.id,
       },
     });
+    // Uploaded assets live on local disk; seed assets under /images are left alone.
+    const key = keyFromMediaUrl(deleted.imageUrl);
+    if (key) await deleteStoredFile(key).catch((err) => console.error("Asset cleanup failed:", err));
 
     return NextResponse.json({ message: "Frame catalog deleted successfully" });
   } catch (error) {

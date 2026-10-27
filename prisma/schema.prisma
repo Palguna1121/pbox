@@ -27,6 +27,7 @@ model User {
 
   accounts Account[]
   sessions Session[]
+  images   Image[]
 }
 
 model Account {
@@ -105,12 +106,22 @@ model FormalPicture {
 }
 
 model Image {
-  id        String   @id @default(cuid())
-  url       String
-  type      String
-  itemId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid())
+  url        String
+  type       String
+  itemId     String
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  shareToken String   @unique @default(cuid())
+  storageKey String?
+  mimeType   String?
+  width      Int?
+  height     Int?
+  size       Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model FramePlaceholder {
@@ -120,5 +131,5 @@ model FramePlaceholder {
   width     Float
   height    Float
   frameId   String
-  frame     FrameCatalog @relation(fields: [frameId], references: [id])
+  frame     FrameCatalog @relation(fields: [frameId], references: [id], onDelete: Cascade)
 }

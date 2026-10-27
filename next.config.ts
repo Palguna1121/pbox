@@ -1,12 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "ik.imagekit.io", port: "" },
-      { protocol: "https", hostname: "placehold.co", port: "" },
-    ],
+    // placehold.co stays for catalog rows that src/lib/catalog-assets.ts cannot map to a local file.
+    remotePatterns: [{ protocol: "https", hostname: "placehold.co", port: "" }],
   },
 };
 

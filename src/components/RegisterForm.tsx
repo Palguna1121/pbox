@@ -2,11 +2,22 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
-import { Loader2, AlertCircle } from "lucide-react";
+import { AuthCabinet, FormAlert } from "@/components/pages/auth/AuthCabinet";
+
+const MIN_PASSWORD = 8;
+
+/** The register API answers in English; show users a sentence they can act on. */
+function registerError(status: number, message?: string) {
+  if (status === 409) return "Email ini sudah terdaftar. Masuk saja, atau pakai email lain.";
+  if (message === "Invalid email format") return "Format email belum benar.";
+  if (status === 400) return "Nama, email, dan password wajib diisi.";
+  return "Pendaftaran gagal. Coba lagi sebentar lagi.";
+}
 
 export function RegisterForm() {
   const router = useRouter();
@@ -26,62 +37,91 @@ export function RegisterForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password, role: "user" }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Pendaftaran gagal");
-      router.push("/login");
-    } catch (err: any) {
-      setError(err.message);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(registerError(res.status, data.error));
+        setLoading(false);
+        return;
+      }
+      router.push("/login?registered=1");
+    } catch {
+      setError("Tidak bisa terhubung ke server. Periksa koneksi lalu coba lagi.");
       setLoading(false);
     }
   };
 
+  const invalid = Boolean(error);
+
   return (
-    <div className="bg-card rounded-3xl border border-border shadow-sm p-8 space-y-6">
-      <div className="space-y-1">
-        <p className="text-xs font-semibold text-primary uppercase tracking-widest">Bergabung Sekarang</p>
-        <h1 className="text-3xl font-black tracking-tighter">Buat Akun PBOX</h1>
-        <p className="text-muted-foreground text-sm">
+    <AuthCabinet
+      label="New player"
+      title="Buat akun PBOX"
+      intro={
+        <>
           Sudah punya akun?{" "}
-          <Link href="/login" className="text-primary font-semibold hover:underline">
+          <Link href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
             Masuk di sini
           </Link>
-        </p>
-      </div>
-
-      {error && (
-        <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-xl text-sm">
-          <AlertCircle className="w-4 h-4 shrink-0" /> {error}
-        </div>
-      )}
+        </>
+      }
+    >
+      <FormAlert id="register-alert" error={error} />
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
-          <Label htmlFor="name" className="text-sm font-semibold">Nama Lengkap</Label>
-          <Input id="name" type="text" placeholder="John Doe" value={name}
-            onChange={(e) => setName(e.target.value)} required className="rounded-xl h-11" />
+          <Label htmlFor="name">Nama</Label>
+          <Input
+            id="name"
+            name="name"
+            type="text"
+            autoComplete="name"
+            placeholder="Nama kamu"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            aria-invalid={invalid || undefined}
+            aria-describedby={invalid ? "register-alert" : undefined}
+          />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-sm font-semibold">Email</Label>
-          <Input id="email" type="email" placeholder="nama@email.com" value={email}
-            onChange={(e) => setEmail(e.target.value)} required className="rounded-xl h-11" />
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            inputMode="email"
+            placeholder="email@contoh.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            aria-invalid={invalid || undefined}
+            aria-describedby={invalid ? "register-alert" : undefined}
+          />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-sm font-semibold">Password</Label>
-          <Input id="password" type="password" placeholder="Min. 8 karakter" value={password}
-            onChange={(e) => setPassword(e.target.value)} required minLength={8} className="rounded-xl h-11" />
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={MIN_PASSWORD}
+            aria-invalid={invalid || undefined}
+            aria-describedby={invalid ? "password-hint register-alert" : "password-hint"}
+          />
+          <p id="password-hint" className="text-xs text-muted-foreground">
+            Minimal {MIN_PASSWORD} karakter.
+          </p>
         </div>
-        <Button type="submit" className="w-full rounded-full h-11 font-bold" disabled={loading}>
-          {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-          {loading ? "Mendaftar..." : "Daftar Gratis"}
+        <Button type="submit" size="lg" className="w-full" disabled={loading}>
+          {loading && <Loader2 className="animate-spin" aria-hidden="true" />}
+          {loading ? "Membuat akun..." : "Daftar"}
         </Button>
       </form>
-
-      <p className="text-center text-xs text-muted-foreground">
-        Dengan mendaftar kamu menyetujui{" "}
-        <Link href="#" className="underline">Syarat & Ketentuan</Link>
-        {" "}dan{" "}
-        <Link href="#" className="underline">Kebijakan Privasi</Link>.
-      </p>
-    </div>
+    </AuthCabinet>
   );
 }

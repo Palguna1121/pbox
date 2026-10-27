@@ -1,13 +1,14 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
+import { id as localeId } from "date-fns/locale";
 import DeleteButton from "./_components/DeleteButton";
 import { resolveStickerImage } from "@/lib/catalog-assets";
 
-const prisma = new PrismaClient();
+
 
 export default async function StickerCatalogPage() {
   const stickerCatalogs = await prisma.stickerCatalog.findMany({
@@ -22,9 +23,9 @@ export default async function StickerCatalogPage() {
   return (
     <div className="container mx-auto py-10 px-5 lg:px-0">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Sticker Catalog</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight">Katalog stiker</h1>
         <Link href="/admin/sticker-catalog/create">
-          <Button>Create New Sticker</Button>
+          <Button>Tambah stiker</Button>
         </Link>
       </div>
 
@@ -32,17 +33,17 @@ export default async function StickerCatalogPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Image</TableHead>
-              <TableHead>Sticker Name</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Created At</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Gambar</TableHead>
+              <TableHead>Nama stiker</TableHead>
+              <TableHead>Kategori</TableHead>
+              <TableHead>Dibuat</TableHead>
+              <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {stickerCatalogs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                   No stickers found. Create your first sticker!
                 </TableCell>
               </TableRow>
@@ -58,7 +59,7 @@ export default async function StickerCatalogPage() {
                   <TableCell>
                     <span className="capitalize">{sticker.category.name}</span>
                   </TableCell>
-                  <TableCell>{format(new Date(sticker.createdAt), "dd MMM yyyy")}</TableCell>
+                  <TableCell>{format(new Date(sticker.createdAt), "d MMM yyyy", { locale: localeId })}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Link href={`/admin/sticker-catalog/${sticker.id}`}>
@@ -83,3 +84,6 @@ export default async function StickerCatalogPage() {
     </div>
   );
 }
+
+// Admin lists must always reflect the database.
+export const dynamic = "force-dynamic";

@@ -1,16 +1,21 @@
-// src/app/(auth)/login/page.tsx
-import { LoginForm } from "@/components/LoginForm";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { Suspense } from "react";
+import { LoginForm } from "@/components/LoginForm";
 
 export const metadata: Metadata = {
-  title: "Masuk - PBOX",
-  description: "Login ke akun Anda",
+  title: "Masuk",
+  description: "Masuk ke akun PBOX untuk menyimpan dan mengelola foto hasil sesi.",
+  alternates: { canonical: "/login" },
+  robots: { index: false, follow: false },
 };
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="h-80 rounded-3xl bg-muted" role="status" aria-label="Memuat formulir masuk" />}>
+    <Suspense
+      fallback={
+        <div className="arcade-panel h-96 animate-pulse" role="status" aria-label="Memuat formulir masuk" />
+      }
+    >
       <LoginForm />
     </Suspense>
   );

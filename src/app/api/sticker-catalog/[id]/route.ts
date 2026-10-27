@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { deleteStoredFile, keyFromMediaUrl } from "@/lib/storage";
 import { getAuthSession } from "@/lib/auth";
 import { resolveStickerImage } from "@/lib/catalog-assets";
 
@@ -72,11 +73,14 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   try {
     const param = await params;
-    await prisma.stickerCatalog.delete({
+    const deleted = await prisma.stickerCatalog.delete({
       where: {
         id: param.id,
       },
     });
+    // Uploaded assets live on local disk; seed assets under /images are left alone.
+    const key = keyFromMediaUrl(deleted.imageUrl);
+    if (key) await deleteStoredFile(key).catch((err) => console.error("Asset cleanup failed:", err));
 
     return NextResponse.json({ message: "sticker catalog deleted successfully" });
   } catch (error) {

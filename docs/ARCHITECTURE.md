@@ -1,93 +1,80 @@
 # Arsitektur PBOX
 
-Dokumen ini menjelaskan batas komponen dan aliran data pada kode saat ini. Untuk langkah instalasi lihat [SETUP.md](../SETUP.md); untuk status dan risiko lihat [HANDOFF.md](HANDOFF.md).
+Batas komponen dan aliran data pada kode per 27 Oktober 2026. Instalasi: [SETUP.md](../SETUP.md). Status dan risiko: [HANDOFF.md](HANDOFF.md).
 
 ## Gambaran sistem
 
 ```mermaid
 flowchart LR
-  Browser[Browser: katalog, kamera, editor canvas] --> Next[Next.js App Router]
-  Next --> Pages[Server dan Client Components]
+  Browser[Browser: studio, editor fabric.js, MediaPipe] --> Next[Next.js App Router]
   Next --> API[Route handlers /api]
-  API --> Auth[NextAuth credentials dan Google]
-  API --> Prisma[Prisma Client]
-  Prisma --> PG[(PostgreSQL)]
-  API --> ImageKit[ImageKit]
-  Browser --> Camera[Kamera perangkat melalui getUserMedia]
-  API --> Python[Proses Python RealESRGAN, belum tersambung]
+  Next --> Media[/media/... dari STORAGE_DIR/]
+  API --> Auth[NextAuth credentials + Google]
+  API --> Prisma[Prisma] --> PG[(PostgreSQL)]
+  API --> Disk[(Disk lokal STORAGE_DIR)]
+  Browser --> Cam[getUserMedia: webcam/UVC/capture card]
+  API -. opsional .-> Agent[scripts/booth-agent.mjs: gphoto2 + CUPS]
 ```
 
-`compose.yaml` hanya menjalankan PostgreSQL untuk pengembangan. Next.js dan Python dijalankan di host. Belum ada konfigurasi deployment aplikasi di repo.
+ImageKit dan Pinata sudah dihapus. File disimpan ke disk lokal, jadi deployment harus memakai volume persisten (VPS/Docker). `compose.yaml` masih hanya berisi PostgreSQL.
 
 ## Batas komponen
 
 | Bagian | Lokasi | Tanggung jawab |
 | --- | --- | --- |
-| Halaman dan layout | `src/app/` | Route publik, dashboard, admin, tampilan studio |
-| Komponen studio | `src/components/camera/` | Akses kamera, editor frame/stiker/formal, hasil canvas |
-| Komponen bersama | `src/components/` | Navigasi, landing, tema, komponen UI |
-| Route handlers | `src/app/api/` | Validasi permintaan, akses data, upload, auth |
-| Auth | `src/lib/auth.ts`, `src/middleware.ts` | Provider credentials/Google, sesi JWT, penjagaan halaman |
-| Data | `prisma/schema.prisma`, `src/lib/prisma.ts` | Model dan Prisma Client |
-| Media | `src/lib/imagekit.ts`, `src/lib/catalog-assets.ts`, `public/images/`, `assets/source/` | Upload ImageKit, pemetaan URL seed lama, dan aset statis lokal |
+| Layout, tema, SEO | `src/app/layout.tsx`, `src/lib/site.ts`, `robots.ts`, `sitemap.ts`, `manifest.ts`, `opengraph-image.tsx`, `twitter-image.tsx`, `llms.txt/route.ts` | Metadata, OG/Twitter, PWA manifest, robots, sitemap, llms.txt |
+| Landing | `src/app/page.tsx`, `Hero.tsx`, `HowItWorks.tsx` | Konten publik + JSON-LD (WebSite, WebApplication, FAQPage) |
+| Studio | `src/app/camera/page.tsx`, `src/components/camera/Camera.tsx` | Tahap Pilih, Foto, Edit, Hasil; sumber webcam/booth/unggah; burst multi-jepret |
+| Editor | `src/components/editor/` | `useCanvasEditor` (fabric canvas, scene per mode, history), `EditorPanels`, `PhotoEditor`, `segment.ts` (hapus latar) |
+| Share & cetak | `src/app/p/[token]/page.tsx`, `src/components/share/` | Halaman share + QR, ShareActions, PrintDialog (4R, strip, A6, lembar pas foto) |
+| Storage | `src/lib/storage.ts`, `src/app/media/[...key]/route.ts` | Validasi sharp, strip EXIF, tulis/baca/hapus aman dari path traversal |
+| Booth | `src/lib/booth.ts`, `src/app/api/booth/*`, `scripts/booth-agent.mjs` | Proxy ke agen lokal untuk live view, capture, print |
+| Auth | `src/lib/auth.ts`, `src/proxy.ts` | Credentials/Google, JWT, peran admin |
+| Data | `prisma/schema.prisma` | Model dan migrasi |
 
-`src/app/layout.tsx` memasang `AuthProvider`, `ThemeProvider`, header, dan footer untuk seluruh halaman. Landing dirender dari `src/app/page.tsx`. Katalog menggunakan Prisma langsung pada Server Components; editor dan navigasi interaktif merupakan Client Components.
-
-Aset contoh katalog disimpan secara lokal; [ASSETS.md](ASSETS.md) menjelaskan sumber dan turunan web. Saat database masih menyimpan URL `placehold.co` untuk entri seed, halaman dan route GET memetakannya ke file lokal saat membaca data. Baris lain tetap menggunakan URL dari database.
-
-## Aliran utama
-
-### Autentikasi
-
-`POST /api/auth/register` membuat `User` dengan password bcrypt. NextAuth menyediakan login credentials dan Google melalui `/api/auth/[...nextauth]`, memakai Prisma Adapter dan strategi sesi JWT. `src/middleware.ts` mengalihkan pengguna tanpa token dari `/dashboard`, `/profile`, `/settings`, dan `/admin`; jalur admin juga memeriksa `role === "admin"`. Handler API admin memeriksa sesi dan peran lagi secara terpisah.
-
-Perhatian: cabang credentials di `src/lib/auth.ts` hanya membandingkan password jika `User.password` tidak kosong. Ini membuat akun Google dengan password `null` berisiko dapat masuk lewat credentials menggunakan email dan password sembarang. Lihat [prioritas handoff](HANDOFF.md#batasan-dan-pekerjaan-lanjutan).
-
-### Katalog dan foto
+## Aliran foto
 
 ```mermaid
 sequenceDiagram
-  actor Pengguna
-  participant Katalog as Katalog /photobox, /sticker-pic, /formal-pic
-  participant Studio as /camera
-  participant API as /api/images
-  participant IK as ImageKit
+  actor P as Pengguna
+  participant S as /camera
+  participant E as Editor (fabric)
+  participant API as POST /api/images
+  participant D as STORAGE_DIR
   participant DB as PostgreSQL
-  Pengguna->>Katalog: Pilih jenis foto
-  Katalog->>Studio: Buka ?type=frame|sticker|formal
-  Studio->>Pengguna: Minta izin kamera, ambil foto
-  Pengguna->>Studio: Edit di canvas
-  Studio->>API: POST data URL PNG, type, itemId
-  API->>IK: Upload gambar
-  IK-->>API: URL gambar
-  API->>DB: Buat Image
-  API-->>Studio: URL gambar
+  P->>S: Pilih frame/latar (frameId/formalId di URL)
+  S->>P: Hitung mundur, N jepretan (N = jumlah slot)
+  S->>E: Data URL foto -> blob URL
+  P->>E: Filter, stiker, teks, kuas, layer, undo
+  E->>API: multipart PNG (file, type, itemId)
+  API->>D: sharp validasi + rotate + strip metadata
+  API->>DB: Image {url, shareToken, userId?}
+  API-->>S: {imageUrl, shareUrl: /p/<token>}
 ```
 
-Frame mengambil koordinat `FramePlaceholder` dari `GET /api/frames/[id]`. Stiker dibaca dari katalog saat editor dibuka. Foto formal memakai `FormalPicture.sizes` dan gambar latar; editor tidak memisahkan subjek dari latar foto kamera. Hasil canvas disimpan melalui `/api/images`, yang saat ini belum memisahkan prefix data URL dari payload base64.
-
-### Administrasi katalog
-
-Admin membuat dan mengubah kategori, frame, dan stiker melalui halaman `/admin/*`. Formulir frame/stiker mengunggah aset ke `POST /api/files`, lalu menyimpan URL ke katalog. `POST /api/files` memerlukan peran admin. UI belum menyediakan editor koordinat `FramePlaceholder` atau CRUD latar formal.
+- **Frame**: ukuran kanvas = ukuran gambar frame. Tiap foto adalah `FabricImage` dengan `clipPath` absolut di koordinat `FramePlaceholder` (diurutkan atas ke bawah, kiri ke kanan), dan overlay frame terkunci di atasnya. Frame tanpa placeholder memakai satu slot seluas kanvas.
+- **Sticker**: kanvas mengikuti rasio foto (sisi panjang 1600 logis). Rasio bisa dipotong ke 1:1, 4:5, 9:16, atau 16:9.
+- **Formal**: kanvas memakai ukuran `FormalPicture.sizes`. Lapisan latar bisa berupa gambar atau warna solid. Hapus latar memakai MediaPipe selfie segmenter yang self-host (`/vendor/mediapipe`, `/models/selfie_segmenter.tflite`) dan berjalan di perangkat.
+- **Undo/redo**: snapshot `canvas.toObject` + ukuran logis, maksimal 60. Foto dikonversi ke `blob:` URL supaya snapshot kecil. Prop khusus `pboxRole/pboxName/pboxSlot/pboxAdjust` didaftarkan lewat `FabricObject.customProperties`.
+- **Ekspor**: sisi panjang ±2400 px (frame/sticker); formal 3× ukuran logis.
 
 ## Model data
 
-- `User` memiliki `Account` dan `Session`. `role` adalah string dengan nilai awal `user`; seed membuat admin.
-- `Category` memiliki banyak `FrameCatalog` dan `StickerCatalog`.
-- `FrameCatalog` memiliki banyak `FramePlaceholder` yang menyimpan `xPosition`, `yPosition`, `width`, dan `height`.
-- `FormalPicture` menyimpan `backgroundUrl` dan JSON `sizes`.
-- `Image` menyimpan `url`, `type`, dan `itemId`. Tidak ada relasi ke `User`, sehingga belum ada kepemilikan hasil foto per akun.
+- `Image`: `url`, `type`, `itemId`, `userId?` (relasi `User`, `SetNull`), `shareToken` unik, `storageKey`, `mimeType`, `width`, `height`, `size`. Migrasi: `20261027000000_local_storage_share`.
+- `FramePlaceholder` → `FrameCatalog` kini `ON DELETE CASCADE` (migrasi `20261027120000_frame_placeholder_cascade`). Slot kosong diisi otomatis oleh `src/lib/frame-slots.ts`.
+- Model lain tidak berubah: `Category`, `FrameCatalog` + `FramePlaceholder`, `StickerCatalog`, `FormalPicture`, `User`/`Account`/`Session`.
 
-Skema dan aturan relasi yang tepat ada di [schema.prisma](../prisma/schema.prisma). Migration awal berada di `prisma/migrations/20250302172136_reset/`.
+## API
 
-## Integrasi dan batas operasi
-
-| Integrasi | Kebutuhan | Catatan |
+| API | Akses | Catatan |
 | --- | --- | --- |
-| PostgreSQL | `DATABASE_URL` | Database lokal dari Docker Compose pada host port `5433` |
-| NextAuth | `NEXTAUTH_URL`, `NEXTAUTH_SECRET` | Google juga memerlukan client ID dan secret |
-| ImageKit | Public key, private key, URL endpoint | Hasil foto dan aset yang diunggah admin berada di ImageKit; katalog seed memakai file lokal |
-| Kamera browser | Izin kamera, secure context atau localhost | Hanya berjalan di sisi browser |
-| RealESRGAN | Python, requirements, model | Path skrip dan model saat ini tidak cocok; bukan bagian alur kamera aktif |
+| `POST /api/images` | Publik, 20/10 menit/IP | multipart atau JSON data URL lama; mengaitkan `userId` bila login |
+| `GET /api/images` | Login | Foto milik pengguna, maksimal 60 |
+| `DELETE /api/images/[id]` | Pemilik/admin | Hapus baris + file |
+| `POST /api/files` | Admin | Unggah aset katalog ke `catalog/<frames/stickers/formal>` |
+| `GET /media/<key>` | Publik (key acak) | Cache immutable |
+| `GET /api/booth/status`, `/preview`, `POST /capture` | Publik bila `BOOTH_AGENT_URL` diisi | Proxy ke agen lokal |
+| `POST /api/booth/print` | Login, kecuali `BOOTH_PUBLIC_PRINT=true`; 10/10 menit | Hanya file dari `/media/` |
+| `POST /api/upscale` | Admin | Kode lama, path skrip/model belum cocok; belum dipakai UI |
 
-Untuk menambahkan route API, periksa akses pada handler tersebut. Matcher middleware tidak mencakup `/api/*`. Untuk perubahan data, buat migration Prisma yang sesuai dan uji pada database pengembangan sebelum menerapkannya di lingkungan lain.
+Middleware tidak mencakup `/api/*`; setiap handler memeriksa akses sendiri. Rate limiter bersifat in-memory per proses, sehingga belum berlaku lintas instance.

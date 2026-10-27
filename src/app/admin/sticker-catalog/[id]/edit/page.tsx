@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import StickerForm from "../../_components/StickerForm";
 import { resolveStickerImage } from "@/lib/catalog-assets";
 
-const prisma = new PrismaClient();
+
 
 interface EditStickerPageProps {
   params: Promise<{
@@ -29,8 +29,8 @@ export default async function EditStickerPage({ params }: EditStickerPageProps) 
   return (
     <div className="container mx-auto py-10 px-5 lg:px-0">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Edit Sticker</h1>
-        <p className="text-gray-500">Update sticker information</p>
+        <h1 className="font-display text-3xl font-bold tracking-tight">Edit stiker</h1>
+        <p className="text-muted-foreground">Perbarui data stiker</p>
       </div>
 
       <StickerForm initialData={{ ...stickerCatalog, imageUrl: resolveStickerImage(stickerCatalog.stickerName, stickerCatalog.imageUrl) }} isEditing />

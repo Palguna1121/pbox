@@ -26,7 +26,7 @@ export default function DeleteCategoryButton({ id }: DeleteCategoryButtonProps) 
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete category");
+        throw new Error(errorData.error || "Gagal menghapus kategori");
       }
 
       router.refresh();
@@ -45,21 +45,21 @@ export default function DeleteCategoryButton({ id }: DeleteCategoryButtonProps) 
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
         <Button variant="destructive" size="sm">
-          Delete
+          Hapus
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogTitle>Yakin mau menghapus?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this category.
+            Kategori akan dihapus permanen dan tidak bisa dikembalikan.
             {error && <div className="mt-2 text-destructive font-medium">{error}</div>}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>Batal</AlertDialogCancel>
           <AlertDialogAction onClick={handleDelete} disabled={isLoading} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-            {isLoading ? "Deleting..." : "Delete"}
+            {isLoading ? "Menghapus…" : "Hapus"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

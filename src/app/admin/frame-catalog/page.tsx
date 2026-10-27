@@ -1,13 +1,14 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
+import { id as localeId } from "date-fns/locale";
 import DeleteButton from "./_components/DeleteButton";
 import { resolveFrameImage } from "@/lib/catalog-assets";
 
-const prisma = new PrismaClient();
+
 
 export default async function FrameCatalogPage() {
   const frameCatalogs = await prisma.frameCatalog.findMany({
@@ -22,9 +23,9 @@ export default async function FrameCatalogPage() {
   return (
     <div className="container mx-auto py-10 px-5 lg:px-0">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Frame Catalog</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight">Katalog frame</h1>
         <Link href="/admin/frame-catalog/create">
-          <Button>Create New Frame</Button>
+          <Button>Tambah frame</Button>
         </Link>
       </div>
 
@@ -32,17 +33,17 @@ export default async function FrameCatalogPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Image</TableHead>
-              <TableHead>Frame Name</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Created At</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Gambar</TableHead>
+              <TableHead>Nama frame</TableHead>
+              <TableHead>Kategori</TableHead>
+              <TableHead>Dibuat</TableHead>
+              <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {frameCatalogs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                   No frames found. Create your first frame!
                 </TableCell>
               </TableRow>
@@ -58,7 +59,7 @@ export default async function FrameCatalogPage() {
                   <TableCell>
                     <span className="capitalize">{frame.category.name}</span>
                   </TableCell>
-                  <TableCell>{format(new Date(frame.createdAt), "dd MMM yyyy")}</TableCell>
+                  <TableCell>{format(new Date(frame.createdAt), "d MMM yyyy", { locale: localeId })}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Link href={`/admin/frame-catalog/${frame.id}`}>
@@ -83,3 +84,6 @@ export default async function FrameCatalogPage() {
     </div>
   );
 }
+
+// Admin lists must always reflect the database.
+export const dynamic = "force-dynamic";
